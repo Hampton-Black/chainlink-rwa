@@ -34,6 +34,8 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1.0.10
 
       - name: Run foundry node, deploy contracts (& generate contracts typescript output)
+        env:
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
         run: yarn chain & yarn deploy
 
       - name: Run nextjs lint
