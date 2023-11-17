@@ -33,8 +33,11 @@ jobs:
       - name: foundry-toolchain
         uses: foundry-rs/foundry-toolchain@v1.0.10
 
-      - name: Run foundry node, deploy contracts (& generate contracts typescript output)
-        run: yarn chain & yarn deploy
+      - name: Run foundry node,
+        run: yarn chain
+
+      - name: deploy contracts & generate contracts typescript output
+        run: yarn deploy
 
       - name: Run nextjs lint
         run: yarn next:lint --max-warnings=0
