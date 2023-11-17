@@ -12547,6 +12547,7 @@ __metadata:
   resolution: "react-hot-toast@npm:2.4.1"
   dependencies:
     goober: "npm:^2.1.10"
+    csstype: "npm:^3.0.10"
   peerDependencies:
     react: ">=16"
     react-dom: ">=16"
