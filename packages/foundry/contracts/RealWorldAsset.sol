@@ -8,8 +8,8 @@ contract RealWorldAsset is ERC1155, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     constructor(address deployer) ERC1155("https://example.com/token/{id}.json") {
-        _setupRole(DEFAULT_ADMIN_ROLE, deployer);
-        _setupRole(MINTER_ROLE, deployer);
+        _grantRole(DEFAULT_ADMIN_ROLE, deployer);
+        _grantRole(MINTER_ROLE, deployer);
     }
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public {
@@ -23,5 +23,15 @@ contract RealWorldAsset is ERC1155, AccessControl {
             "MyContract: must have admin role or be the account owner to burn"
         );
         _burn(account, id, amount);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }
