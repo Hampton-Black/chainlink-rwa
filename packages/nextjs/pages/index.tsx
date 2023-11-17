@@ -1,59 +1,69 @@
 import Link from "next/link";
 import type { NextPage } from "next";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { MetaHeader } from "~~/components/MetaHeader";
 
 const Home: NextPage = () => {
   return (
     <>
       <MetaHeader />
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center mb-8">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-          </h1>
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/pages/index.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-10 pt-10">
+        <div className="card w-96 bg-primary text-primary-content">
+          <Link href="/buyer-registration">
+            <div className="card-body">
+              <h2 className="card-title">Buyer</h2>
+              <p>
+                Register as a buyer, using KYC/AML checks privately and securely through Polygon ID and ZK Proof
+                technology
+              </p>
+
+              <span>
+                Buy certified RWA NFTs for digital and physical ownership rights, as well as{" "}
+                <em>the physical item itself!</em> This platform includes built-in legal and regulatory protections.
+              </span>
+              <div className="card-actions justify-end">
+                <button className="btn">Register</button>
+              </div>
+            </div>
+          </Link>
         </div>
 
-        <div className="flex-grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col sm:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
+        <div className="card w-96 bg-primary text-primary-content">
+          <Link href="/seller-registration">
+            <div className="card-body">
+              <h2 className="card-title">Seller</h2>
               <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contract
-                </Link>{" "}
-                tab.
+                Register as a seller, using KYC/AML checks privately and securely through Polygon ID and ZK Proof
+                technology.
               </p>
+              <span>
+                Register your <em>Real World Asset</em> as a specialized NFT with built-in legal and regulatory
+                protections.
+              </span>
+
+              <div className="card-actions justify-end">
+                <button className="btn">Register</button>
+              </div>
             </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
+          </Link>
+        </div>
+
+        <div className="card w-96 bg-primary text-primary-content">
+          <Link href="/certifier-registration">
+            <div className="card-body">
+              <h2 className="card-title">Certifier</h2>
               <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
+                Register as a certifier, after proving your credentials and qualifications as a System Matter Expert in
+                various fields.
               </p>
+              <span>
+                Certify NFTs as a trusted third party and increase earning potential based on a revenue sharing model
+                with the platform.
+              </span>
+              <div className="card-actions justify-end">
+                <button className="btn">Register</button>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </>
