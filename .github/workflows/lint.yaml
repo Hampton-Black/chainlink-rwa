@@ -43,14 +43,14 @@ jobs:
 
       - name: Run nextjs lint
         run: yarn next:lint --max-warnings=0
-        id: lint
+        id: lint-frontend
 
       - name: Check typings on nextjs
         run: yarn next:check-types
 
       - name: Run foundry lint
         run: yarn foundry:lint --check
-        id: lint
+        id: lint-foundry
 
       - name: Run Forge tests
         run: yarn foundry:test -vvv
