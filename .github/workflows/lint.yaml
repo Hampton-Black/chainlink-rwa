@@ -1,9 +1,5 @@
 name: Lint
 
-- name: foundry-toolchain
-  uses: foundry-rs/foundry-toolchain@v1.0.10
-
-
 on:
   push:
     branches:
@@ -33,6 +29,9 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+
+      - name: foundry-toolchain
+        uses: foundry-rs/foundry-toolchain@v1.0.10
 
       - name: Run foundry node, deploy contracts (& generate contracts typescript output)
         run: yarn chain & yarn deploy
