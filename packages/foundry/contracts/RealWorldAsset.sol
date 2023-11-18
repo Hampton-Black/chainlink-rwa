@@ -8,14 +8,23 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 contract RealWorldAsset is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burnable, ERC1155Supply {
-    bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
+    bytes32 public constant METADATOR_ROLE = keccak256("METADATOR_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    struct Metadata {
+        string name;
+        string assetType;
+        string location;
+    }
+
+    mapping(uint256 => Metadata) public metadata;
 
     constructor(address deployer) ERC1155("") {
         _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _grantRole(MINTER_ROLE, deployer);
         _grantRole(PAUSER_ROLE, deployer);
+        _grantRole(METADATOR_ROLE, deployer);
     }
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
@@ -29,8 +38,15 @@ contract RealWorldAsset is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burna
         _mintBatch(to, ids, amounts, data);
     }
 
-    function setURI(string memory newuri) public onlyRole(URI_SETTER_ROLE) {
+    function setURI(string memory newuri) public onlyRole(METADATOR_ROLE) {
         _setURI(newuri);
+    }
+
+    function setMetadata(uint256 id, string memory name, string memory assetType, string memory location)
+        public
+        onlyRole(METADATOR_ROLE)
+    {
+        metadata[id] = Metadata(name, assetType, location);
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -40,6 +56,10 @@ contract RealWorldAsset is ERC1155, AccessControl, ERC1155Pausable, ERC1155Burna
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
+
+    // *********************************************************************************************
+    // * The following functions are necessary for the Chainlink Decentralized Oracle Network (DON).
+    // *********************************************************************************************
 
     // *********************************************************************************************
     // * The following functions are overrides required by Solidity.
