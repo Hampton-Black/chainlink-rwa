@@ -34,7 +34,9 @@ contract CompilationTest is Test {
     function test_RevertWhen_MintWithoutMinterRole() public {
         // Need minter role first
         vm.startPrank(bob);
-        vm.expectRevert("RealWorldAsset: must have minter role to mint");
+        vm.expectRevert(
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, bob, MINTER_ROLE)
+        );
         asset.mint(bob, 1, 1, "");
         vm.stopPrank();
     }
