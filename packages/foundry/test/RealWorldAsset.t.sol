@@ -11,9 +11,10 @@ contract CompilationTest is Test {
     address private alice = vm.addr(0x1);
     address private bob = vm.addr(0x2);
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    address constant POLYGON_MUMBAI_CHAINLINK_ROUTER = 0x6E2dc0F9DB014aE19888F539E59285D2Ea04244C;
 
     function setUp() public {
-        asset = new RealWorldAsset(alice, 60);
+        asset = new RealWorldAsset(alice, 60, POLYGON_MUMBAI_CHAINLINK_ROUTER);
     }
 
     function test_AssetCreation() public {

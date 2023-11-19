@@ -5,6 +5,8 @@ import {RealWorldAsset} from "../contracts/RealWorldAsset.sol";
 import "./DeployHelpers.s.sol";
 
 contract DeployScript is ScaffoldETHDeploy {
+    address constant POLYGON_MUMBAI_CHAINLINK_ROUTER = 0x6E2dc0F9DB014aE19888F539E59285D2Ea04244C;
+
     error InvalidPrivateKey(string);
 
     function run() external {
@@ -17,7 +19,8 @@ contract DeployScript is ScaffoldETHDeploy {
         vm.startBroadcast(deployerPrivateKey);
         RealWorldAsset rwaContract = new RealWorldAsset(
             vm.addr(deployerPrivateKey), 
-            60 // update interval in seconds
+            60, // update interval in seconds
+            POLYGON_MUMBAI_CHAINLINK_ROUTER
         );
         console.logString(string.concat("RealWorldAsset contract deployed at: ", vm.toString(address(rwaContract))));
         vm.stopBroadcast();
