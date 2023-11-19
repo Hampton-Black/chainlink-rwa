@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
-import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
-import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
+import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import {AutomationCompatible} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 contract RealWorldAsset is
     ERC1155,
@@ -110,22 +110,18 @@ contract RealWorldAsset is
         uint256 tokenId = abi.decode(checkData, (uint256));
 
         // generate json schema of metadata "off-chain" via Chainlink oracles doing automation upkeep
+        // forgefmt: disable-start
+        // solhint-disable quotes
         bytes memory dataURI = abi.encodePacked(
             "{",
-            '"name": ',
-            '"',
-            metadata[tokenId].name,
-            '",',
-            '"description": "Real World Asset digital twin NFT",',
-            '"asset type": ',
-            '"',
-            metadata[tokenId].assetType,
-            '",',
-            '"image": "',
-            // generateSVG(tokenId),
-            '"',
+                '"name": "', metadata[tokenId].name, '",',
+                '"description": "Real World Asset digital twin NFT",',
+                '"asset type": "', metadata[tokenId].assetType, '",',
+                '"image": "', /* generateSVG(tokenId), */ '"',
             "}"
         );
+        // solhint-enable quotes
+        // forgefmt: disable-end
 
         string memory jsonSchema = string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
 
