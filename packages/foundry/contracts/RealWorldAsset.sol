@@ -9,6 +9,8 @@ import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import {AutomationCompatible} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
+import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_X/FunctionsClient.sol";
+import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
 
 contract RealWorldAsset is
     ERC1155,
@@ -16,7 +18,9 @@ contract RealWorldAsset is
     ERC1155Pausable,
     ERC1155Burnable,
     ERC1155Supply,
-    AutomationCompatible
+    AutomationCompatible,
+    FunctionsClient,
+    ConfirmedOwner
 {
     using Strings for uint256;
 
@@ -33,11 +37,27 @@ contract RealWorldAsset is
 
     mapping(uint256 => Metadata) public metadata;
 
+    // @dev variables needed for Chainlink ops
     bool private upkeepRequested;
     uint256 public immutable interval;
     uint256 public lastTimeStamp;
+    bytes public request;
+    uint64 public subscriptionId;
+    uint32 public gasLimit;
+    bytes32 public donID;
+    bytes32 public s_lastRequestId;
+    bytes public s_lastResponse;
+    bytes public s_lastError;
 
-    constructor(address deployer, uint256 updateInterval) ERC1155("") {
+    error UnexpectedRequestID(bytes32 requestId);
+
+    event Response(bytes32 indexed requestId, bytes response, bytes err);
+
+    constructor(address deployer, uint256 updateInterval, address router)
+        ERC1155("")
+        FunctionsClient(router)
+        ConfirmedOwner(deployer)
+    {
         _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _grantRole(MINTER_ROLE, deployer);
         _grantRole(PAUSER_ROLE, deployer);
@@ -92,9 +112,10 @@ contract RealWorldAsset is
     // * The following functions are necessary for the Chainlink Decentralized Oracle Network (DON).
     // *********************************************************************************************
 
-    /* @dev this method is called by the Chainlink Automation Nodes to check if `performUpkeep` must be done. 
+    /**
+     * @dev this method is called by the Chainlink Automation Nodes to check if `performUpkeep` must be done.
      * @dev `checkData` is an encoded binary data and which contains the token ID
-     * @dev return `upkeepNeeded` if metadata has updated and `performData` which contains the new json schema to be uploaded to IPFS. 
+     * @dev return `upkeepNeeded` if metadata has updated and `performData` which contains the new json schema to be uploaded to IPFS.
      *      This will be used in `performUpkeep`
      */
     function checkUpkeep(bytes calldata checkData)
@@ -131,9 +152,11 @@ contract RealWorldAsset is
         return (upkeepNeeded, performData);
     }
 
-    /* @dev this method is called by the Automation Nodes. It uploads the new json schema to IPFS. 
+    /**
+     * @dev this method is called by the Automation Nodes. It uploads the new json schema to IPFS.
      * @dev `performData` is an encoded binary data which contains the json schema.
      * note: can also use this with Chainlink Functions to retrieve dynamic data from external APIs.
+     * @notice Send a pre-encoded CBOR request if upkeep is needed.
      */
     function performUpkeep(bytes calldata performData) external override {
         if (upkeepRequested || (block.timestamp - lastTimeStamp) < interval) {
@@ -146,7 +169,42 @@ contract RealWorldAsset is
             metadata[tokenId].jsonSchema = jsonSchema;
 
             // use Chainlink Function to store jsonSchema in IPFS and return hash to store in metadata
+            s_lastRequestId = _sendRequest(request, subscriptionId, gasLimit, donID);
         }
+    }
+
+    /**
+     * @notice Update the request settings
+     * @dev Only callable by the owner of the contract
+     * @param _request The new encoded CBOR request to be set. The request is encoded off-chain
+     * @param _subscriptionId The new subscription ID to be set
+     * @param _gasLimit The new gas limit to be set
+     * @param _donID The new job ID to be set
+     */
+    function updateRequest(bytes memory _request, uint64 _subscriptionId, uint32 _gasLimit, bytes32 _donID)
+        external
+        onlyOwner
+    {
+        request = _request;
+        subscriptionId = _subscriptionId;
+        gasLimit = _gasLimit;
+        donID = _donID;
+    }
+
+    /**
+     * @notice Store latest result/error
+     * @param requestId The request ID, returned by sendRequest()
+     * @param response Aggregated response from the user code
+     * @param err Aggregated error from the user code or from the execution pipeline
+     * Either response or error parameter will be set, but never both
+     */
+    function _fulfillRequest(bytes32 requestId, bytes memory response, bytes memory err) internal override {
+        if (s_lastRequestId != requestId) {
+            revert UnexpectedRequestID(requestId);
+        }
+        s_lastResponse = response;
+        s_lastError = err;
+        emit Response(requestId, s_lastResponse, s_lastError);
     }
 
     // *********************************************************************************************
