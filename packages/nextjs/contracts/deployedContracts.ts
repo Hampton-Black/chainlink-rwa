@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
       abi: [
         {
           inputs: [
@@ -1048,7 +1048,7 @@ const deployedContracts = {
   },
   80001: {
     RealWorldAsset: {
-      address: "0x7b5a13cC1Ca3e77CE0Df34eeDdF84Ee29F3F09DC",
+      address: "0x40385c4845B4E0A290b2559541297105De2297A9",
       abi: [
         {
           inputs: [
