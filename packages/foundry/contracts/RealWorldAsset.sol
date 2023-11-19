@@ -28,6 +28,7 @@ contract RealWorldAsset is
         string name;
         string assetType;
         string location;
+        string jsonSchema; // only for testing automation
     }
 
     mapping(uint256 => Metadata) public metadata;
@@ -55,7 +56,7 @@ contract RealWorldAsset is
         (string memory name, string memory assetType, string memory location) =
             abi.decode(data, (string, string, string));
 
-        metadata[id] = Metadata(name, assetType, location);
+        metadata[id] = Metadata(name, assetType, location, "");
 
         _mint(account, id, amount, data);
     }
@@ -75,7 +76,7 @@ contract RealWorldAsset is
         public
         onlyRole(METADATOR_ROLE)
     {
-        metadata[id] = Metadata(name, assetType, location);
+        metadata[id] = Metadata(name, assetType, location, "");
         upkeepRequested = true;
     }
 
@@ -128,7 +129,7 @@ contract RealWorldAsset is
 
         string memory jsonSchema = string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
 
-        performData = abi.encode(jsonSchema);
+        performData = abi.encode(tokenId, jsonSchema);
 
         return (upkeepNeeded, performData);
     }
@@ -142,7 +143,11 @@ contract RealWorldAsset is
             upkeepRequested = false;
             lastTimeStamp = block.timestamp;
 
-            string memory jsonSchema = abi.decode(performData, (string));
+            (uint256 tokenId, string memory jsonSchema) = abi.decode(performData, (uint256, string));
+
+            // note: test chainlink automation first
+            metadata[tokenId].jsonSchema = jsonSchema;
+
             // use Chainlink Function to store jsonSchema in IPFS and return hash to store in metadata
         }
     }
