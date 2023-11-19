@@ -56,7 +56,7 @@ contract VerifyAll is Script {
         bytes memory constructorArgs =
             BytesLib.slice(deployedBytecode, compiledBytecode.length, deployedBytecode.length - compiledBytecode.length);
 
-        string[] memory inputs = new string[](9);
+        string[] memory inputs = new string[](11);
         inputs[0] = "forge";
         inputs[1] = "verify-contract";
         inputs[2] = vm.toString(contractAddr);
@@ -66,6 +66,8 @@ contract VerifyAll is Script {
         inputs[6] = "--constructor-args";
         inputs[7] = vm.toString(constructorArgs);
         inputs[8] = "--watch";
+        inputs[9] = "-e";
+        inputs[10] = vm.envString("POLYGONSCAN_API_KEY");
 
         FfiResult memory f = tempVm(address(vm)).tryFfi(inputs);
 
