@@ -13,7 +13,7 @@ contract CompilationTest is Test {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     function setUp() public {
-        asset = new RealWorldAsset(alice);
+        asset = new RealWorldAsset(alice, 60);
     }
 
     function test_AssetCreation() public {
