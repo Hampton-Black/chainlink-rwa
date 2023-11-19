@@ -29,7 +29,7 @@ scrollSepolia = "https://sepolia-rpc.scroll.io"
 scroll = "https://rpc.scroll.io"
 
 [etherscan]
-polygonMumbai = { key = "${ETHERSCAN_API_KEY}" }
+polygonMumbai = { key = "${POLYGONSCAN_API_KEY}" }
 goerli = { key = "${ETHERSCAN_API_KEY}" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
