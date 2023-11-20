@@ -10,6 +10,3 @@
 [submodule "packages/foundry/lib/chainlink"]
 	path = packages/foundry/lib/chainlink
 	url = https://github.com/smartcontractkit/chainlink
-[submodule "packages/foundry/lib/functions-toolkit"]
-	path = packages/foundry/lib/functions-toolkit
-	url = https://github.com/smartcontractkit/functions-toolkit
