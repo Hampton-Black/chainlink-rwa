@@ -38,7 +38,7 @@ contract RealWorldAsset is
     mapping(uint256 => Metadata) public metadata;
 
     // @dev variables needed for Chainlink ops
-    bool private upkeepRequested;
+    bool public upkeepRequested;
     uint256 public immutable interval;
     uint256 public lastTimeStamp;
     bytes public request;
@@ -88,7 +88,8 @@ contract RealWorldAsset is
         _mintBatch(to, ids, amounts, data);
     }
 
-    function setURI(string memory newuri) public onlyRole(METADATOR_ROLE) {
+    // TODO how to use modifier to only allow Chainlink oracle callback response to set URI?
+    function setURI(string memory newuri) public {
         _setURI(newuri);
     }
 
@@ -107,6 +108,23 @@ contract RealWorldAsset is
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
+
+    // function decodeAndSeparateDataURI(string memory base64JsonSchema) internal pure returns (string memory dataURI) {
+    // OZ Base64 only supports encoding, will need a new library for decoding.
+    // maybe https://github.com/Vectorized/solady/tree/8d868a936ec1a45be294e26de1a64ebfb73c6c20
+    // bytes memory decodedJsonSchema = Base64.decode(bytes(base64JsonSchema));
+    // string memory jsonSchema = string(decodedJsonSchema);
+
+    // // Parse the jsonSchema to extract the dataURI
+    // // Assuming the dataURI is enclosed in double quotes and follows the format: "data:<media-type>;base64,<base64-data>"
+    // uint256 startIndex = Strings.indexOf(jsonSchema, '"', 0) + 1;
+    // uint256 endIndex = Strings.indexOf(jsonSchema, '"', startIndex);
+    // dataURI = Strings.substring(jsonSchema, startIndex, endIndex - startIndex);
+    // }
+
+    // Usage example:
+    // string memory base64JsonSchema = "data:application/json;base64,eyJub2...";
+    // string memory dataURI = decodeAndSeparateDataURI(base64JsonSchema);
 
     // *********************************************************************************************
     // * The following functions are necessary for the Chainlink Decentralized Oracle Network (DON).
@@ -168,8 +186,21 @@ contract RealWorldAsset is
             // note: test chainlink automation first
             metadata[tokenId].jsonSchema = jsonSchema;
 
+            // Decode the CBOR-encoded request to a tuple and add in tokenId and jsonSchema as bytes args
+            (bytes memory cborBytes, bytes[] memory bytesArgs) = abi.decode(request, (bytes, bytes[]));
+
+            bytes memory tokenIdBytes = abi.encode(tokenId);
+            bytes memory jsonSchemaBytes = abi.encode(jsonSchema);
+
+            bytesArgs[0] = tokenIdBytes;
+            bytesArgs[1] = jsonSchemaBytes;
+
+            // Encode the new tuple of arguments for the CBOR-encoded request
+            bytes memory newCborBytes = abi.encode(cborBytes, bytesArgs);
+
+            // Send the request to the Chainlink node
             // use Chainlink Function to store jsonSchema in IPFS and return hash to store in metadata
-            s_lastRequestId = _sendRequest(request, subscriptionId, gasLimit, donID);
+            s_lastRequestId = _sendRequest(newCborBytes, subscriptionId, gasLimit, donID);
         }
     }
 
@@ -185,10 +216,14 @@ contract RealWorldAsset is
         external
         onlyOwner
     {
+        // update request settings from off-chain
         request = _request;
         subscriptionId = _subscriptionId;
         gasLimit = _gasLimit;
         donID = _donID;
+
+        // set the upkeepRequested flag to true to trigger the first upkeep
+        upkeepRequested = true;
     }
 
     /**
@@ -205,6 +240,8 @@ contract RealWorldAsset is
         s_lastResponse = response;
         s_lastError = err;
         emit Response(requestId, s_lastResponse, s_lastError);
+
+        setURI(string(abi.encodePacked("ipfs://", string(response))));
     }
 
     // *********************************************************************************************
