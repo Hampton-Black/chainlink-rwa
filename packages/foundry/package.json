@@ -11,7 +11,8 @@
     "generate": "node script/generateAccount.js",
     "lint": "forge fmt",
     "test": "forge test",
-    "verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/VerifyAll.s.sol --ffi --rpc-url ${1:-default_network}"
+    "verify": "forge build --build-info --build-info-path out/build-info/ && forge script script/VerifyAll.s.sol --ffi --rpc-url ${1:-default_network}",
+    "slither": "python -m slither ."
   },
   "dependencies": {
     "@chainlink/functions-toolkit": "^0.2.6",
