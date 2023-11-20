@@ -7,6 +7,7 @@ const encoded = abi.encode(
   ["test", "real estate", "florida"]
 );
 
-// const encodedID = abi.encode(["uint256"], [1]);
+const encodedID = abi.encode(["uint256"], [1]);
 
 console.log(encoded);
+// console.log(encodedID);
