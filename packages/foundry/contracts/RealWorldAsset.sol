@@ -9,7 +9,6 @@ import {AccessControl, IAccessControl} from "@openzeppelin/contracts/access/Acce
 import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
-import {AutomationCompatible} from "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_X/FunctionsClient.sol";
 import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
 
@@ -19,7 +18,6 @@ contract RealWorldAsset is
     ERC1155Pausable,
     ERC1155Burnable,
     ERC1155Supply,
-    AutomationCompatible,
     FunctionsClient,
     ConfirmedOwner
 {
@@ -31,13 +29,9 @@ contract RealWorldAsset is
     using Checkpoints for Checkpoints.Trace224;
 
     bytes32 public constant METADATOR_ROLE = keccak256("METADATOR_ROLE");
+    bytes32 public constant CERTIFIER_ROLE = keccak256("CERTIFIER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-
-    struct Valuation {
-        uint32 timestamp;
-        uint224 value;
-    }
 
     struct Certifier {
         address certifier; // registered wallet address of certifier
@@ -89,10 +83,6 @@ contract RealWorldAsset is
     mapping(uint256 => Checkpoints.Trace224) private _valuations;
 
     // @dev variables needed for Chainlink ops
-    bool public upkeepRequested;
-    bool public initialRequest;
-    uint256 public immutable interval;
-    uint256 public lastTimeStamp;
     bytes public s_request;
     uint64 public s_subscriptionId;
     uint32 public s_gasLimit;
@@ -115,11 +105,7 @@ contract RealWorldAsset is
     // * Constructor
     // *********************************************************************************************
 
-    constructor(address deployer, uint256 updateInterval, address router)
-        ERC1155("")
-        FunctionsClient(router)
-        ConfirmedOwner(deployer)
-    {
+    constructor(address deployer, address router) ERC1155("") FunctionsClient(router) ConfirmedOwner(deployer) {
         _grantRole(DEFAULT_ADMIN_ROLE, deployer);
         _grantRole(MINTER_ROLE, deployer);
         _grantRole(PAUSER_ROLE, deployer);
@@ -127,14 +113,11 @@ contract RealWorldAsset is
 
         // note: testing only
         _grantRole(DEFAULT_ADMIN_ROLE, 0x6f440F479B9Acd8Da0471D852BCfAeA1B09987E6);
-
-        // set the interval for the upkeep
-        interval = updateInterval;
-        lastTimeStamp = block.timestamp;
     }
 
     // *********************************************************************************************
     // * Public and External Functions
+    // * -- minting
     // *********************************************************************************************
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
@@ -159,12 +142,10 @@ contract RealWorldAsset is
         // TODO: add EIP-712 signature verification and revert if invalid?
         legalContracts[id] = LegalContract(signature, legalURI);
 
-        upkeepRequested = true;
-        initialRequest = true;
-
         _mint(account, id, amount, data);
     }
 
+    // note: Is this needed for this use case?
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         public
         onlyRole(MINTER_ROLE)
@@ -172,13 +153,114 @@ contract RealWorldAsset is
         _mintBatch(to, ids, amounts, data);
     }
 
-    // TODO how to use modifier to only allow Chainlink oracle callback response to set URI?
-    function setURI(string memory newuri) public onlyRole(METADATOR_ROLE) {
-        _setURI(newuri);
-    }
+    // *********************************************************************************************
+    // * Public and External Functions
+    // * -- Metadata
+    // *********************************************************************************************
 
     function getMetadata(uint256 id) public view returns (Metadata memory) {
         return metadata[id];
+    }
+
+    function updateMetadata(
+        uint256 id,
+        string memory name,
+        string memory assetType,
+        string memory location,
+        string memory fullURI,
+        string memory assetThumbnail
+    ) public onlyRole(METADATOR_ROLE) {
+        if (bytes(name).length != 0) {
+            metadata[id].name = name;
+        }
+        if (bytes(assetType).length != 0) {
+            metadata[id].assetType = assetType;
+        }
+        if (bytes(location).length != 0) {
+            metadata[id].location = location;
+        }
+        if (bytes(fullURI).length != 0) {
+            metadata[id].fullURI = fullURI;
+        }
+        if (bytes(assetThumbnail).length != 0) {
+            metadata[id].assetThumbnail = assetThumbnail;
+        }
+    }
+
+    function getLegalContract(uint256 id) public view returns (LegalContract memory) {
+        return legalContracts[id];
+    }
+
+    // *********************************************************************************************
+    // * Public and External Functions
+    // * -- Certifications
+    // *********************************************************************************************
+
+    function getCertifiers(uint256 id) public view returns (Certifier[] memory) {
+        return certifiers[id];
+    }
+
+    function certifyAsset(uint256 id, address certifier, uint16 percentage, string memory sampleThumbnail)
+        public
+        onlyRole(CERTIFIER_ROLE)
+    {
+        certifiers[id].push(Certifier(certifier, percentage, sampleThumbnail));
+    }
+
+    // function to register a new Certifier
+    function registerCertifier(address certifier) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        // TODO: add logic to verify certifier is a valid address
+        // TODO: add logic to verify certifier is not already registered
+        // TODO: EIP 712 signature verification?
+
+        _grantRole(CERTIFIER_ROLE, certifier);
+    }
+
+    // *********************************************************************************************
+    // * Public and External Functions
+    // * -- Warranties
+    // *********************************************************************************************
+
+    function getWarranties(uint256 id) public view returns (Warranty[] memory) {
+        return warranties[id];
+    }
+
+    function addWarranty(uint256 id, uint32 expiration, uint16 percentage, string memory fullURI)
+        public
+        onlyRole(METADATOR_ROLE) // which role should this be?
+    {
+        warranties[id].push(Warranty(uint32(block.timestamp), expiration, percentage, fullURI));
+    }
+
+    // function to renew a warranty
+    function renewWarranty(uint256 id, uint32 expiration, string memory fullURI)
+        public
+        onlyRole(METADATOR_ROLE) // which role should this be?
+    {
+        require(warranties[id].length > 0, "No warranty exists for this asset");
+
+        // retrieve warranty with same fullURI and update expiration
+        for (uint256 i = 0; i < warranties[id].length; i++) {
+            if (keccak256(bytes(warranties[id][i].fullURI)) == keccak256(bytes(fullURI))) {
+                require(warranties[id][i].expiration > block.timestamp, "Warranty has already expired");
+
+                warranties[id][i].expiration = expiration;
+            }
+        }
+    }
+
+    // *********************************************************************************************
+    // * Public and External Functions
+    // * -- Valulations
+    // *********************************************************************************************
+
+    function getLatestValuation(uint256 id) public view returns (uint224) {
+        return _valuations[id].latest();
+    }
+
+    // note: which role should this be? Will be called by Chainlink Functions
+    function updateValuation(uint256 id, uint224 value) public onlyRole(METADATOR_ROLE) {
+        _valuations[id].push(uint32(block.timestamp), value);
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -194,73 +276,6 @@ contract RealWorldAsset is
     // *********************************************************************************************
 
     /**
-     * @dev this method is called by the Chainlink Automation Nodes to check if `performUpkeep` must be done.
-     * @dev `checkData` is an encoded binary data and which contains the token ID
-     * @dev return `upkeepNeeded` if metadata has updated and `performData` which contains the new json schema to be uploaded to IPFS.
-     *      This will be used in `performUpkeep`
-     */
-    function checkUpkeep(bytes calldata /* checkData */ )
-        external
-        view
-        override
-        returns (bool upkeepNeeded, bytes memory performData)
-    {
-        if (upkeepRequested || (block.timestamp - lastTimeStamp) < interval) {
-            upkeepNeeded = true;
-        }
-
-        // uint256 totalTokens = totalSupply();
-
-        // for (uint256 i = 1; i < totalTokens; i++) {
-        //     if (bytes(metadata[i].jsonSchema).length == 0) {
-        //         upkeepNeeded = true;
-        //     }
-        // }
-
-        // possibly generate dynamic SVG of metadata "off-chain" via Chainlink oracles doing automation upkeep
-
-        performData = abi.encode();
-
-        return (upkeepNeeded, performData);
-    }
-
-    /**
-     * @dev this method is called by the Automation Nodes. It uploads the new json schema to IPFS.
-     * @dev `performData` is an encoded binary data which contains the json schema.
-     * note: can also use this with Chainlink Functions to retrieve dynamic data from external APIs.
-     * @notice Send a pre-encoded CBOR request if upkeep is needed.
-     */
-    function performUpkeep(bytes calldata performData) external override {
-        if (upkeepRequested || (block.timestamp - lastTimeStamp) < interval) {
-            upkeepRequested = false;
-            lastTimeStamp = block.timestamp;
-
-            // token ID is hardcoded for testing, will need to be dynamic for all IDs that need updated
-            uint256 tokenId = 1;
-
-            // Decode the CBOR-encoded request to a tuple and add in tokenId and jsonSchema as bytes args
-            // (bytes memory cborBytes, bytes[] memory bytesArgs) = abi.decode(request, (bytes, bytes[]));
-
-            // bytes memory tokenIdBytes = abi.encode(tokenId);
-            // bytes memory jsonSchemaBytes = abi.encode(jsonSchema);
-
-            // bytesArgs[0] = tokenIdBytes;
-            // bytesArgs[1] = jsonSchemaBytes;
-
-            // // Encode the new tuple of arguments for the CBOR-encoded request
-            // bytes memory newCborBytes = abi.encode(cborBytes, bytesArgs);
-
-            // use Chainlink Function to store jsonSchema in IPFS and return hash to store in metadata
-            // Only send Functions request if not initial request
-            if (!initialRequest) {
-                s_lastRequestId = _sendRequest(s_request, s_subscriptionId, s_gasLimit, s_donID);
-            } else {
-                initialRequest = false;
-            }
-        }
-    }
-
-    /**
      * @notice Send a pre-encoded CBOR request
      * @param request CBOR-encoded request data
      * @param subscriptionId Billing ID
@@ -268,14 +283,14 @@ contract RealWorldAsset is
      * @param donID ID of the job to be invoked
      * @return requestId The ID of the sent request
      */
-    // function sendRequestCBOR(bytes memory request, uint64 subscriptionId, uint32 gasLimit, bytes32 donID)
-    //     external
-    //     onlyOwner
-    //     returns (bytes32 requestId)
-    // {
-    //     s_lastRequestId = _sendRequest(request, subscriptionId, gasLimit, donID);
-    //     return s_lastRequestId;
-    // }
+    function sendRequestCBOR(bytes memory request, uint64 subscriptionId, uint32 gasLimit, bytes32 donID)
+        external
+        onlyOwner
+        returns (bytes32 requestId)
+    {
+        s_lastRequestId = _sendRequest(request, subscriptionId, gasLimit, donID);
+        return s_lastRequestId;
+    }
 
     /**
      * @notice Update the request settings
@@ -294,9 +309,6 @@ contract RealWorldAsset is
         s_subscriptionId = _subscriptionId;
         s_gasLimit = _gasLimit;
         s_donID = _donID;
-
-        // set the upkeepRequested flag to true to trigger the first upkeep with Functions call
-        upkeepRequested = true;
     }
 
     // external function for Chainlink Oracles to call
@@ -318,8 +330,6 @@ contract RealWorldAsset is
         s_lastResponse = response;
         s_lastError = err;
         emit Response(requestId, s_lastResponse, s_lastError);
-
-        setURI(string(abi.encodePacked("ipfs://", string(response))));
     }
 
     // *********************************************************************************************
