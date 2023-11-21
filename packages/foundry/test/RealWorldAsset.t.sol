@@ -14,7 +14,7 @@ contract CompilationTest is Test {
     address constant POLYGON_MUMBAI_CHAINLINK_ROUTER = 0x6E2dc0F9DB014aE19888F539E59285D2Ea04244C;
 
     function setUp() public {
-        asset = new RealWorldAsset(alice, 60, POLYGON_MUMBAI_CHAINLINK_ROUTER);
+        asset = new RealWorldAsset(alice, address(POLYGON_MUMBAI_CHAINLINK_ROUTER));
     }
 
     function test_AssetCreation() public {
