@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0x0165878A594ca255338adfa4d48449f69242Eb8F",
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       abi: [
         {
           inputs: [
@@ -649,7 +649,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "bytes",
-              name: "checkData",
+              name: "",
               type: "bytes",
             },
           ],
@@ -664,19 +664,6 @@ const deployedContracts = {
               internalType: "bytes",
               name: "performData",
               type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "donID",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "",
-              type: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -702,13 +689,64 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "gasLimit",
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "requestId",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "response",
+              type: "bytes",
+            },
+            {
+              internalType: "bytes",
+              name: "err",
+              type: "bytes",
+            },
+          ],
+          name: "fulfillRequest",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getMetadata",
           outputs: [
             {
-              internalType: "uint32",
+              components: [
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "assetType",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "location",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "jsonSchema",
+                  type: "string",
+                },
+              ],
+              internalType: "struct RealWorldAsset.Metadata",
               name: "",
-              type: "uint32",
+              type: "tuple",
             },
           ],
           stateMutability: "view",
@@ -788,6 +826,19 @@ const deployedContracts = {
             },
           ],
           name: "hasRole",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "initialRequest",
           outputs: [
             {
               internalType: "bool",
@@ -1003,19 +1054,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "request",
-          outputs: [
-            {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "bytes32",
@@ -1031,6 +1069,32 @@ const deployedContracts = {
           name: "revokeRole",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_donID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_gasLimit",
+          outputs: [
+            {
+              internalType: "uint32",
+              name: "",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -1067,6 +1131,32 @@ const deployedContracts = {
               internalType: "bytes",
               name: "",
               type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_request",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_subscriptionId",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
             },
           ],
           stateMutability: "view",
@@ -1141,6 +1231,40 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes",
+              name: "request",
+              type: "bytes",
+            },
+            {
+              internalType: "uint64",
+              name: "subscriptionId",
+              type: "uint64",
+            },
+            {
+              internalType: "uint32",
+              name: "gasLimit",
+              type: "uint32",
+            },
+            {
+              internalType: "bytes32",
+              name: "donID",
+              type: "bytes32",
+            },
+          ],
+          name: "sendRequestCBOR",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "requestId",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "operator",
               type: "address",
@@ -1195,19 +1319,6 @@ const deployedContracts = {
           name: "setURI",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "subscriptionId",
-          outputs: [
-            {
-              internalType: "uint64",
-              name: "",
-              type: "uint64",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -1307,6 +1418,19 @@ const deployedContracts = {
           name: "updateRequest",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "upkeepRequested",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -1333,7 +1457,7 @@ const deployedContracts = {
   },
   80001: {
     RealWorldAsset: {
-      address: "0x1061faF91397d7B44814cEd2C2685D4a602417f5",
+      address: "0xa7Cf39C58d45830CA54411bB0FE3bFF53a27B66c",
       abi: [
         {
           inputs: [
@@ -1975,7 +2099,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "bytes",
-              name: "checkData",
+              name: "",
               type: "bytes",
             },
           ],
@@ -1990,19 +2114,6 @@ const deployedContracts = {
               internalType: "bytes",
               name: "performData",
               type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "donID",
-          outputs: [
-            {
-              internalType: "bytes32",
-              name: "",
-              type: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -2028,13 +2139,64 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "gasLimit",
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "requestId",
+              type: "bytes32",
+            },
+            {
+              internalType: "bytes",
+              name: "response",
+              type: "bytes",
+            },
+            {
+              internalType: "bytes",
+              name: "err",
+              type: "bytes",
+            },
+          ],
+          name: "fulfillRequest",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getMetadata",
           outputs: [
             {
-              internalType: "uint32",
+              components: [
+                {
+                  internalType: "string",
+                  name: "name",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "assetType",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "location",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "jsonSchema",
+                  type: "string",
+                },
+              ],
+              internalType: "struct RealWorldAsset.Metadata",
               name: "",
-              type: "uint32",
+              type: "tuple",
             },
           ],
           stateMutability: "view",
@@ -2114,6 +2276,19 @@ const deployedContracts = {
             },
           ],
           name: "hasRole",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "initialRequest",
           outputs: [
             {
               internalType: "bool",
@@ -2329,19 +2504,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "request",
-          outputs: [
-            {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "bytes32",
@@ -2357,6 +2519,32 @@ const deployedContracts = {
           name: "revokeRole",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_donID",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_gasLimit",
+          outputs: [
+            {
+              internalType: "uint32",
+              name: "",
+              type: "uint32",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -2393,6 +2581,32 @@ const deployedContracts = {
               internalType: "bytes",
               name: "",
               type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_request",
+          outputs: [
+            {
+              internalType: "bytes",
+              name: "",
+              type: "bytes",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "s_subscriptionId",
+          outputs: [
+            {
+              internalType: "uint64",
+              name: "",
+              type: "uint64",
             },
           ],
           stateMutability: "view",
@@ -2467,6 +2681,40 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes",
+              name: "request",
+              type: "bytes",
+            },
+            {
+              internalType: "uint64",
+              name: "subscriptionId",
+              type: "uint64",
+            },
+            {
+              internalType: "uint32",
+              name: "gasLimit",
+              type: "uint32",
+            },
+            {
+              internalType: "bytes32",
+              name: "donID",
+              type: "bytes32",
+            },
+          ],
+          name: "sendRequestCBOR",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "requestId",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "operator",
               type: "address",
@@ -2521,19 +2769,6 @@ const deployedContracts = {
           name: "setURI",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "subscriptionId",
-          outputs: [
-            {
-              internalType: "uint64",
-              name: "",
-              type: "uint64",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -2633,6 +2868,19 @@ const deployedContracts = {
           name: "updateRequest",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "upkeepRequested",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
