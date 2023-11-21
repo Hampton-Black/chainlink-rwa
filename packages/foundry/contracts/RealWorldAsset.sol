@@ -42,6 +42,7 @@ contract RealWorldAsset is
     struct Certifier {
         address certifier; // registered wallet address of certifier
         uint16 percentage; // 100% = 10000
+        string sampleThumbnail; // IPFS hash
     }
 
     struct Warranty {
@@ -55,6 +56,8 @@ contract RealWorldAsset is
         string name;
         string assetType;
         string location;
+        uint256 assetOwnershipShare; // 100% = 10000
+        string assetThumbnail; // IPFS hash
         string fullURI; // IPFS hash
     }
 
@@ -63,11 +66,24 @@ contract RealWorldAsset is
         string uri; // IPFS hash
     }
 
+    // Enum of different states of the asset
+    enum AssetState {
+        Uncertified,
+        Certified,
+        Vaulted,
+        InTransit,
+        InUse,
+        Destroyed
+    }
+
     // Map different types of metadata to token ID
     mapping(uint256 => Metadata) public metadata;
     mapping(uint256 => LegalContract) public legalContracts;
     mapping(uint256 => Certifier[]) public certifiers;
     mapping(uint256 => Warranty[]) public warranties;
+
+    // Map token ID to current state
+    mapping(uint256 => AssetState) public assetStates;
 
     // Map token ID to dynamic valuation
     mapping(uint256 => Checkpoints.Trace224) private _valuations;
@@ -128,12 +144,16 @@ contract RealWorldAsset is
             string memory assetType,
             string memory location,
             string memory fullURI,
+            string memory assetThumbnail,
             bytes memory signature,
             string memory legalURI
-        ) = abi.decode(data, (string, string, string, string, bytes, string));
+        ) = abi.decode(data, (string, string, string, string, string, bytes, string));
+
+        // calculate asset ownership share based on current balance
+        uint256 assetOwnershipShare = (balanceOf(account, id) + amount) * 10000 / (totalSupply(id) + amount);
 
         // Initial metadata creation
-        metadata[id] = Metadata(name, assetType, location, fullURI);
+        metadata[id] = Metadata(name, assetType, location, assetOwnershipShare, assetThumbnail, fullURI);
 
         // Initial legal contract creation
         // TODO: add EIP-712 signature verification and revert if invalid?
@@ -143,8 +163,6 @@ contract RealWorldAsset is
         initialRequest = true;
 
         _mint(account, id, amount, data);
-
-        // Get the asset price from Chainlink Functions
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
