@@ -34,27 +34,42 @@ contract RealWorldAsset is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
+    struct Valuation {
+        uint32 timestamp;
+        uint224 value;
+    }
+
+    struct Certifier {
+        address certifier; // registered wallet address of certifier
+        uint16 percentage; // 100% = 10000
+    }
+
     struct Warranty {
-        uint256 id;
-        uint256 expiration;
-        uint256 price; // in basis points of the asset price
-        string termsURI; // IPFS hash
-        string certifier;
+        uint32 timestamp;
+        uint32 expiration;
+        uint16 percentage;
+        string fullURI; // IPFS hash
     }
 
     struct Metadata {
         string name;
         string assetType;
         string location;
-        string image; // IPFS hash
-        string extendedDetailsURI; // IPFS hash
-        string legalContractURI; // IPFS hash
-        string signature; // EIP-712 signature of the asset owner
-        Warranty[] warranties;
+        string fullURI; // IPFS hash
     }
 
-    mapping(uint256 => Metadata) public metadata;
+    struct LegalContract {
+        bytes signature; // EIP-712 signature of the asset owner
+        string uri; // IPFS hash
+    }
 
+    // Map different types of metadata to token ID
+    mapping(uint256 => Metadata) public metadata;
+    mapping(uint256 => LegalContract) public legalContracts;
+    mapping(uint256 => Certifier[]) public certifiers;
+    mapping(uint256 => Warranty[]) public warranties;
+
+    // Map token ID to dynamic valuation
     mapping(uint256 => Checkpoints.Trace224) private _valuations;
 
     // @dev variables needed for Chainlink ops
@@ -107,65 +122,22 @@ contract RealWorldAsset is
     // *********************************************************************************************
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
-        // initial metadata creation
-        // decode data to get metadata
+        // decode data to get metadata values
         (
             string memory name,
             string memory assetType,
             string memory location,
-            string memory image,
-            string memory extendedDetailsURI,
-            string memory legalContractURI,
-            string memory signature,
-            uint256[] memory warrantyIds,
-            uint256[] memory warrantyExpirations,
-            uint256[] memory warrantyPrices,
-            string[] memory warrantyTermsURIs,
-            string[] memory warrantyCertifiers
-        ) = abi.decode(
-            data,
-            (
-                string,
-                string,
-                string,
-                string,
-                string,
-                string,
-                string,
-                uint256[],
-                uint256[],
-                uint256[],
-                string[],
-                string[]
-            )
-        );
+            string memory fullURI,
+            bytes memory signature,
+            string memory legalURI
+        ) = abi.decode(data, (string, string, string, string, bytes, string));
 
-        Metadata storage newMetadata = metadata[id];
+        // Initial metadata creation
+        metadata[id] = Metadata(name, assetType, location, fullURI);
 
-        newMetadata.name = name;
-        newMetadata.assetType = assetType;
-        newMetadata.location = location;
-        newMetadata.image = image;
-        newMetadata.extendedDetailsURI = extendedDetailsURI;
-        newMetadata.legalContractURI = legalContractURI;
-        newMetadata.signature = signature;
-
-        // add warranties to metadata
-        uint256 warrantiesLength = warrantyIds.length;
-        newMetadata.warranties = new Warranty[](warrantiesLength);
-
-        for (uint256 i = 0; i < warrantiesLength; i++) {
-            bytes memory warrantyData = abi.encode(
-                Warranty(
-                    warrantyIds[i],
-                    warrantyExpirations[i],
-                    warrantyPrices[i],
-                    warrantyTermsURIs[i],
-                    warrantyCertifiers[i]
-                )
-            );
-            newMetadata.warranties[i] = abi.decode(warrantyData, (Warranty));
-        }
+        // Initial legal contract creation
+        // TODO: add EIP-712 signature verification and revert if invalid?
+        legalContracts[id] = LegalContract(signature, legalURI);
 
         upkeepRequested = true;
         initialRequest = true;
@@ -183,7 +155,7 @@ contract RealWorldAsset is
     }
 
     // TODO how to use modifier to only allow Chainlink oracle callback response to set URI?
-    function setURI(string memory newuri) public {
+    function setURI(string memory newuri) public onlyRole(METADATOR_ROLE) {
         _setURI(newuri);
     }
 
