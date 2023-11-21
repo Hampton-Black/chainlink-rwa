@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol";
 import {AccessControl, IAccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
@@ -22,20 +23,39 @@ contract RealWorldAsset is
     FunctionsClient,
     ConfirmedOwner
 {
+    // *********************************************************************************************
+    // * Libraries and Data Structures
+    // *********************************************************************************************
+
     using Strings for uint256;
+    using Checkpoints for Checkpoints.Trace224;
 
     bytes32 public constant METADATOR_ROLE = keccak256("METADATOR_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
+    struct Warranty {
+        uint256 id;
+        uint256 expiration;
+        uint256 price; // in basis points of the asset price
+        string termsURI; // IPFS hash
+        string certifier;
+    }
+
     struct Metadata {
         string name;
         string assetType;
         string location;
-        string jsonSchema; // only for testing automation
+        string image; // IPFS hash
+        string extendedDetailsURI; // IPFS hash
+        string legalContractURI; // IPFS hash
+        string signature; // EIP-712 signature of the asset owner
+        Warranty[] warranties;
     }
 
     mapping(uint256 => Metadata) public metadata;
+
+    mapping(uint256 => Checkpoints.Trace224) private _valuations;
 
     // @dev variables needed for Chainlink ops
     bool public upkeepRequested;
@@ -50,9 +70,19 @@ contract RealWorldAsset is
     bytes public s_lastResponse;
     bytes public s_lastError;
 
+    // *********************************************************************************************
+    // * Custom Errors and Events
+    // *********************************************************************************************
+
     error UnexpectedRequestID(bytes32 requestId);
 
     event Response(bytes32 indexed requestId, bytes response, bytes err);
+
+    // TODO: add events for all functions
+
+    // *********************************************************************************************
+    // * Constructor
+    // *********************************************************************************************
 
     constructor(address deployer, uint256 updateInterval, address router)
         ERC1155("")
@@ -72,16 +102,77 @@ contract RealWorldAsset is
         lastTimeStamp = block.timestamp;
     }
 
+    // *********************************************************************************************
+    // * Public and External Functions
+    // *********************************************************************************************
+
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
         // initial metadata creation
-        (string memory name, string memory assetType, string memory location) =
-            abi.decode(data, (string, string, string));
+        // decode data to get metadata
+        (
+            string memory name,
+            string memory assetType,
+            string memory location,
+            string memory image,
+            string memory extendedDetailsURI,
+            string memory legalContractURI,
+            string memory signature,
+            uint256[] memory warrantyIds,
+            uint256[] memory warrantyExpirations,
+            uint256[] memory warrantyPrices,
+            string[] memory warrantyTermsURIs,
+            string[] memory warrantyCertifiers
+        ) = abi.decode(
+            data,
+            (
+                string,
+                string,
+                string,
+                string,
+                string,
+                string,
+                string,
+                uint256[],
+                uint256[],
+                uint256[],
+                string[],
+                string[]
+            )
+        );
 
-        metadata[id] = Metadata(name, assetType, location, "");
+        Metadata storage newMetadata = metadata[id];
+
+        newMetadata.name = name;
+        newMetadata.assetType = assetType;
+        newMetadata.location = location;
+        newMetadata.image = image;
+        newMetadata.extendedDetailsURI = extendedDetailsURI;
+        newMetadata.legalContractURI = legalContractURI;
+        newMetadata.signature = signature;
+
+        // add warranties to metadata
+        uint256 warrantiesLength = warrantyIds.length;
+        newMetadata.warranties = new Warranty[](warrantiesLength);
+
+        for (uint256 i = 0; i < warrantiesLength; i++) {
+            bytes memory warrantyData = abi.encode(
+                Warranty(
+                    warrantyIds[i],
+                    warrantyExpirations[i],
+                    warrantyPrices[i],
+                    warrantyTermsURIs[i],
+                    warrantyCertifiers[i]
+                )
+            );
+            newMetadata.warranties[i] = abi.decode(warrantyData, (Warranty));
+        }
+
         upkeepRequested = true;
         initialRequest = true;
 
         _mint(account, id, amount, data);
+
+        // Get the asset price from Chainlink Functions
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
@@ -98,15 +189,6 @@ contract RealWorldAsset is
 
     function getMetadata(uint256 id) public view returns (Metadata memory) {
         return metadata[id];
-    }
-
-    function setMetadata(uint256 id, string memory name, string memory assetType, string memory location)
-        public
-        onlyRole(METADATOR_ROLE)
-    {
-        metadata[id] = Metadata(name, assetType, location, "");
-        upkeepRequested = true;
-        initialRequest = true;
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -145,26 +227,9 @@ contract RealWorldAsset is
         //     }
         // }
 
-        // quick test first
-        uint256 tokenId = 1;
+        // possibly generate dynamic SVG of metadata "off-chain" via Chainlink oracles doing automation upkeep
 
-        // generate json schema of metadata "off-chain" via Chainlink oracles doing automation upkeep
-        // forgefmt: disable-start
-        // solhint-disable quotes
-        bytes memory dataURI = abi.encodePacked(
-            "{",
-                '"name": "', metadata[tokenId].name, '",',
-                '"description": "Real World Asset digital twin NFT",',
-                '"asset type": "', metadata[tokenId].assetType, '",',
-                '"image": "', /* generateSVG(tokenId), */ '"',
-            "}"
-        );
-        // solhint-enable quotes
-        // forgefmt: disable-end
-
-        string memory jsonSchema = string(abi.encodePacked("data:application/json;base64,", Base64.encode(dataURI)));
-
-        performData = abi.encode(jsonSchema);
+        performData = abi.encode();
 
         return (upkeepNeeded, performData);
     }
@@ -180,13 +245,8 @@ contract RealWorldAsset is
             upkeepRequested = false;
             lastTimeStamp = block.timestamp;
 
-            string memory jsonSchema = abi.decode(performData, (string));
-
             // token ID is hardcoded for testing, will need to be dynamic for all IDs that need updated
             uint256 tokenId = 1;
-
-            // note: test chainlink automation first
-            metadata[tokenId].jsonSchema = jsonSchema;
 
             // Decode the CBOR-encoded request to a tuple and add in tokenId and jsonSchema as bytes args
             // (bytes memory cborBytes, bytes[] memory bytesArgs) = abi.decode(request, (bytes, bytes[]));
