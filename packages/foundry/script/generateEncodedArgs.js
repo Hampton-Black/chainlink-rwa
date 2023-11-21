@@ -4,7 +4,7 @@ const ethers = require("ethers");
 const abi = new ethers.utils.AbiCoder();
 const encoded = abi.encode(
   ["string", "string", "string"],
-  ["test", "real estate", "florida"]
+  ["test", "real estate", "Miami, FL"]
 );
 
 const encodedID = abi.encode(["uint256"], [1]);
