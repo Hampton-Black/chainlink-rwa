@@ -11,14 +11,10 @@ if (!secrets.apiKey) {
   );
 }
 
-// Decoding args
-const decodedTokenId = Functions.decodeResult(tokenId, uint256);
-const decodedJsonSchema = Functions.decodeResult(jsonSchema, string);
-
 // convert stringify JSON to JSON object
-const decodedJsonObj = JSON.parse(decodedJsonSchema);
+const jsonObj = JSON.parse(jsonSchema);
 
-console.log("decodedJsonObj: ", decodedJsonObj);
+console.log("jsonObj: ", jsonObj);
 
 // build HTTP request objects
 const pinataRequest = Functions.makeHttpRequest({
@@ -29,14 +25,12 @@ const pinataRequest = Functions.makeHttpRequest({
     Authorization: `Bearer ${secrets.apiKey}`,
   },
   data: {
-    body: {
-      pinataContent: decodedJsonObj,
-      pinataOptions: {
-        cidVersion: 1,
-      },
-      pinataMetadata: {
-        name: `RWA NFT metadata for ${decodedTokenId}`,
-      },
+    pinataContent: jsonObj,
+    pinataOptions: {
+      cidVersion: 1,
+    },
+    pinataMetadata: {
+      name: `RWA NFT metadata for ${tokenId}`,
     },
   },
 });
