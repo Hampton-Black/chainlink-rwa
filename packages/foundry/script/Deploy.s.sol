@@ -16,11 +16,14 @@ contract DeployScript is ScaffoldETHDeploy {
                 "You don't have a deployer account. Make sure you have set DEPLOYER_PRIVATE_KEY in .env or use `yarn generate` to generate a new random account"
             );
         }
+
+        console.log("Deploying contracts with the router: ", POLYGON_MUMBAI_CHAINLINK_ROUTER);
+
         vm.startBroadcast(deployerPrivateKey);
         RealWorldAsset rwaContract = new RealWorldAsset(
             vm.addr(deployerPrivateKey), 
             60, // update interval in seconds
-            POLYGON_MUMBAI_CHAINLINK_ROUTER
+            address(POLYGON_MUMBAI_CHAINLINK_ROUTER)
         );
         console.logString(string.concat("RealWorldAsset contract deployed at: ", vm.toString(address(rwaContract))));
         vm.stopBroadcast();
