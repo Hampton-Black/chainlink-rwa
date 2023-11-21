@@ -14,8 +14,8 @@ const ethers = require("ethers");
 const { base64 } = require("ethers/lib/utils");
 require("dotenv").config();
 
-const consumerAddress = "0x1061faF91397d7B44814cEd2C2685D4a602417f5"; // REPLACE this with your Functions consumer address
-const subscriptionId = 839; // REPLACE this with your subscription ID
+const consumerAddress = "0xa7Cf39C58d45830CA54411bB0FE3bFF53a27B66c"; // REPLACE this with your Functions consumer address
+const subscriptionId = 858; // REPLACE this with your subscription ID
 
 const updateRequestMumbai = async () => {
   // hardcoded for Polygon Mumbai
@@ -31,11 +31,6 @@ const updateRequestMumbai = async () => {
   const source = fs
     .readFileSync(path.resolve(__dirname, "source.js"))
     .toString();
-
-  const secrets = { apiKey: process.env.PINATA_API_KEY };
-  const slotIdNumber = 0; // slot ID where to upload the secrets
-  const expirationTimeMinutes = 150; // expiration time in minutes of the secrets
-  const gasLimit = 500000;
 
   // Initialize ethers signer and provider to interact with the contracts onchain
   const privateKey = process.env.DEPLOYER_PRIVATE_KEY; // fetch PRIVATE_KEY
@@ -54,28 +49,43 @@ const updateRequestMumbai = async () => {
   const wallet = new ethers.Wallet(privateKey);
   const signer = wallet.connect(provider); // create ethers signer for signing transactions
 
+  // Initialize the Functions Consumer contract
+  const automatedFunctionsConsumer = new ethers.Contract(
+    consumerAddress,
+    automatedFunctionsConsumerAbi.abi,
+    signer
+  );
+
+  // Fetch metadata from the smart contract
+  const metadata = await automatedFunctionsConsumer.getMetadata(1);
+  const metadataSchema = {
+    name: metadata.name,
+    assetType: metadata.assetType,
+    location: metadata.location,
+    image: metadata.image,
+    jsonSchema: metadata.jsonSchema,
+  };
+
+  console.log("metadataSchema: ", metadataSchema);
+
+  const metadataString = JSON.stringify(metadataSchema);
+
+  console.log("metadataString: ", metadataString);
+
+  const args = ["1", metadataString]; // args to pass to the source script
+  const secrets = { apiKey: process.env.PINATA_API_KEY };
+  const slotIdNumber = 0; // slot ID where to upload the secrets
+  const expirationTimeMinutes = 150; // expiration time in minutes of the secrets
+  const gasLimit = 300_000;
+
   ///////// START SIMULATION ////////////
 
   console.log("Start simulation...");
 
-  const abi = new ethers.utils.AbiCoder();
-
-  const data = {
-    n: "RWA",
-    d: "RWA NFT",
-  };
-
   const response = await simulateScript({
     source: source,
-    args: [],
-    bytesArgs: [
-      // simulate bytes args from on-chain
-      abi.encode(["uint256"], [1]), // tokenId
-      abi.encode(
-        ["string"],
-        [base64.encode(abi.encode(["string"], [JSON.stringify(data)]))] // jsonSchema
-      ),
-    ],
+    args: args,
+    bytesArgs: [],
     secrets: secrets,
   });
 
@@ -136,12 +146,6 @@ const updateRequestMumbai = async () => {
       version: donHostedSecretsVersion,
     }); // encode encrypted secrets version
 
-  const automatedFunctionsConsumer = new ethers.Contract(
-    consumerAddress,
-    automatedFunctionsConsumerAbi.abi,
-    signer
-  );
-
   // Encode request
 
   const functionsRequestBytesHexString = buildRequestCBOR({
@@ -150,12 +154,12 @@ const updateRequestMumbai = async () => {
     secretsLocation: Location.DONHosted, // Location of the encrypted secrets - DONHosted in this example
     source: source, // soure code
     encryptedSecretsReference: donHostedEncryptedSecretsReference,
-    args: [],
+    args: args,
     bytesArgs: [], // bytesArgs - arguments will be added on-chain in RealWorldAsset.performUpkeep()
   });
 
   // Update request settings
-  const transaction = await automatedFunctionsConsumer.updateRequest(
+  const transaction = await automatedFunctionsConsumer.sendRequestCBOR(
     functionsRequestBytesHexString,
     subscriptionId,
     gasLimit,
