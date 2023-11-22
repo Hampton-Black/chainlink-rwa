@@ -7,7 +7,7 @@ const Home: NextPage = () => {
     <>
       <MetaHeader />
       <div className="flex flex-col sm:flex-row items-center justify-center gap-10 pt-10">
-        <div className="card w-96 bg-primary text-primary-content">
+        <div className="card w-96 bg-primary text-primary-content hover:scale-105 transition-transform duration-300">
           <Link href="/buyer-registration">
             <div className="card-body">
               <h2 className="card-title">Buyer</h2>
@@ -20,14 +20,14 @@ const Home: NextPage = () => {
                 Buy certified RWA NFTs for digital and physical ownership rights, as well as{" "}
                 <em>the physical item itself!</em> This platform includes built-in legal and regulatory protections.
               </span>
-              <div className="card-actions justify-end">
+              <div className="card-actions justify-end card:hover:btn-primary">
                 <button className="btn">Register</button>
               </div>
             </div>
           </Link>
         </div>
 
-        <div className="card w-96 bg-primary text-primary-content">
+        <div className="card w-96 bg-primary text-primary-content hover:scale-105 transition-transform duration-300">
           <Link href="/seller-registration">
             <div className="card-body">
               <h2 className="card-title">Seller</h2>
@@ -47,7 +47,7 @@ const Home: NextPage = () => {
           </Link>
         </div>
 
-        <div className="card w-96 bg-primary text-primary-content">
+        <div className="card w-96 bg-primary text-primary-content hover:scale-105 transition-transform duration-300">
           <Link href="/certifier-registration">
             <div className="card-body">
               <h2 className="card-title">Certifier</h2>
