@@ -97,6 +97,7 @@ contract RealWorldAsset is
     mapping(uint256 => uint32) private _numberOfWarranties;
 
     // @dev variables needed for Chainlink ops
+    address public upkeepContract;
     bytes public s_request;
     uint64 public s_subscriptionId;
     uint32 public s_gasLimit;
@@ -108,6 +109,8 @@ contract RealWorldAsset is
     // *********************************************************************************************
     // * Custom Errors and Events
     // *********************************************************************************************
+
+    error NotAllowedCaller(address caller, address owner, address automationRegistry);
 
     error UnexpectedRequestID(bytes32 requestId);
 
@@ -142,6 +145,20 @@ contract RealWorldAsset is
 
         // note: testing only
         _grantRole(DEFAULT_ADMIN_ROLE, 0x6f440F479B9Acd8Da0471D852BCfAeA1B09987E6);
+    }
+
+    // *********************************************************************************************
+    // * Modifiers
+    // *********************************************************************************************
+
+    /**
+     * @notice Reverts if called by anyone other than the contract owner or automation registry.
+     */
+    modifier onlyAllowed() {
+        if (msg.sender != owner() && msg.sender != upkeepContract) {
+            revert NotAllowedCaller(msg.sender, owner(), upkeepContract);
+        }
+        _;
     }
 
     // *********************************************************************************************
@@ -313,22 +330,16 @@ contract RealWorldAsset is
     // * The following functions are necessary for the Chainlink Decentralized Oracle Network (DON).
     // *********************************************************************************************
 
-    // TODO: Finish Chainlink Functions implementation with Automation cron jobs
+    function setAutomationCronContract(address _upkeepContract) external onlyOwner {
+        upkeepContract = _upkeepContract;
+    }
 
     /**
      * @notice Send a pre-encoded CBOR request
-     * @param request CBOR-encoded request data
-     * @param subscriptionId Billing ID
-     * @param gasLimit The maximum amount of gas the request can consume
-     * @param donID ID of the job to be invoked
      * @return requestId The ID of the sent request
      */
-    function sendRequestCBOR(bytes memory request, uint64 subscriptionId, uint32 gasLimit, bytes32 donID)
-        external
-        onlyOwner
-        returns (bytes32 requestId)
-    {
-        s_lastRequestId = _sendRequest(request, subscriptionId, gasLimit, donID);
+    function sendRequestCBOR() external onlyAllowed returns (bytes32 requestId) {
+        s_lastRequestId = _sendRequest(s_request, s_subscriptionId, s_gasLimit, s_donID);
         return s_lastRequestId;
     }
 
@@ -370,6 +381,8 @@ contract RealWorldAsset is
         s_lastResponse = response;
         s_lastError = err;
         emit Response(requestId, s_lastResponse, s_lastError);
+
+        // TODO: add logic to parse response and update valuation
     }
 
     // *********************************************************************************************
