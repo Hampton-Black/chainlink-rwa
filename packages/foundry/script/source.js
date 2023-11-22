@@ -3,7 +3,7 @@
 
 // Arguments can be provided when a request is initated on-chain and used in the request source code as shown below
 const tokenId = args[0];
-const jsonSchema = args[1];
+const location = args[1];
 
 if (!secrets.apiKey) {
   throw Error(
@@ -11,10 +11,7 @@ if (!secrets.apiKey) {
   );
 }
 
-// convert stringify JSON to JSON object
-const jsonObj = JSON.parse(jsonSchema);
-
-console.log("jsonObj: ", jsonObj);
+console.log("location: ", location);
 
 // build HTTP request objects
 const pinataRequest = Functions.makeHttpRequest({
