@@ -220,6 +220,10 @@ contract RealWorldAsset is
         return _assetStateToString[_assetStates[id]];
     }
 
+    function getLegalContract(uint256 id) public view returns (LegalContract memory) {
+        return _legalContracts[id];
+    }
+
     function updateMetadata(
         uint256 id,
         string memory name,
@@ -235,8 +239,10 @@ contract RealWorldAsset is
         _metadata[id].assetThumbnail = assetThumbnail;
     }
 
-    function getLegalContract(uint256 id) public view returns (LegalContract memory) {
-        return _legalContracts[id];
+    // @dev function to update the URI of the entire contract/all tokens.
+    // @dev this should only be used to update the base URI for SVG template for tokens.
+    function setURI(string memory newURI) public onlyRole(METADATOR_ROLE) {
+        _setURI(newURI);
     }
 
     // *********************************************************************************************
