@@ -26,7 +26,20 @@ contract CompilationTest is Test {
         // Need minter role first
         vm.startPrank(alice);
         asset.grantRole(MINTER_ROLE, alice);
-        asset.mint(alice, 1, 1, abi.encode("name", "assetType", "location"));
+        asset.mint(
+            alice,
+            1,
+            1,
+            abi.encode(
+                "name",
+                "assetType",
+                "location",
+                "qmbeiffullURIHash",
+                "qmbeifPhotoHash",
+                "0x02382efe2282ab",
+                "qmbeifLegalDocHash"
+            )
+        );
         vm.stopPrank();
 
         assertEq(asset.balanceOf(alice, 1), 1);
