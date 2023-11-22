@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
       abi: [
         {
           inputs: [
@@ -15,11 +15,6 @@ const deployedContracts = {
               internalType: "address",
               name: "deployer",
               type: "address",
-            },
-            {
-              internalType: "uint256",
-              name: "updateInterval",
-              type: "uint256",
             },
             {
               internalType: "address",
@@ -49,6 +44,11 @@ const deployedContracts = {
             },
           ],
           name: "AccessControlUnauthorizedAccount",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CheckpointUnorderedInsertion",
           type: "error",
         },
         {
@@ -166,11 +166,6 @@ const deployedContracts = {
         {
           inputs: [],
           name: "OnlyRouterCanFulfill",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "OnlySimulatedBackend",
           type: "error",
         },
         {
@@ -494,6 +489,19 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "CERTIFIER_ROLE",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "DEFAULT_ADMIN_ROLE",
           outputs: [
             {
@@ -549,6 +557,53 @@ const deployedContracts = {
           name: "acceptOwnership",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "expiration",
+              type: "uint32",
+            },
+            {
+              internalType: "uint16",
+              name: "percentage",
+              type: "uint16",
+            },
+            {
+              internalType: "string",
+              name: "fullURI",
+              type: "string",
+            },
+          ],
+          name: "addWarranty",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "assetStates",
+          outputs: [
+            {
+              internalType: "enum RealWorldAsset.AssetState",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -648,25 +703,24 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
-          ],
-          name: "checkUpkeep",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "upkeepNeeded",
-              type: "bool",
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
             },
             {
-              internalType: "bytes",
-              name: "performData",
-              type: "bytes",
+              internalType: "address",
+              name: "certifier",
+              type: "address",
+            },
+            {
+              internalType: "uint16",
+              name: "percentage",
+              type: "uint16",
             },
           ],
-          stateMutability: "view",
+          name: "certifyAsset",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -719,6 +773,106 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
+          name: "getAssetState",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getCertifiers",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "certifier",
+                  type: "address",
+                },
+                {
+                  internalType: "uint16",
+                  name: "percentage",
+                  type: "uint16",
+                },
+              ],
+              internalType: "struct RealWorldAsset.Certifier[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getLatestValuation",
+          outputs: [
+            {
+              internalType: "uint224",
+              name: "",
+              type: "uint224",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getLegalContract",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+                {
+                  internalType: "string",
+                  name: "uri",
+                  type: "string",
+                },
+              ],
+              internalType: "struct RealWorldAsset.LegalContract",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
           name: "getMetadata",
           outputs: [
             {
@@ -740,13 +894,42 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "jsonSchema",
+                  name: "assetThumbnail",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "fullURI",
                   type: "string",
                 },
               ],
               internalType: "struct RealWorldAsset.Metadata",
               name: "",
               type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+          ],
+          name: "getOwnershipShare",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
             },
           ],
           stateMutability: "view",
@@ -766,6 +949,47 @@ const deployedContracts = {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getWarranties",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint32",
+                  name: "timestamp",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "expiration",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint16",
+                  name: "percentage",
+                  type: "uint16",
+                },
+                {
+                  internalType: "string",
+                  name: "fullURI",
+                  type: "string",
+                },
+              ],
+              internalType: "struct RealWorldAsset.Warranty[]",
+              name: "",
+              type: "tuple[]",
             },
           ],
           stateMutability: "view",
@@ -837,32 +1061,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "initialRequest",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "interval",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "address",
@@ -881,53 +1079,6 @@ const deployedContracts = {
               internalType: "bool",
               name: "",
               type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "lastTimeStamp",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "metadata",
-          outputs: [
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "assetType",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "location",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "jsonSchema",
-              type: "string",
             },
           ],
           stateMutability: "view",
@@ -1025,12 +1176,35 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "bytes",
-              name: "performData",
-              type: "bytes",
+              internalType: "address",
+              name: "certifier",
+              type: "address",
             },
           ],
-          name: "performUpkeep",
+          name: "registerCertifier",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "expiration",
+              type: "uint32",
+            },
+            {
+              internalType: "string",
+              name: "fullURI",
+              type: "string",
+            },
+          ],
+          name: "renewWarranty",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -1283,47 +1457,6 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "assetType",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "location",
-              type: "string",
-            },
-          ],
-          name: "setMetadata",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "newuri",
-              type: "string",
-            },
-          ],
-          name: "setURI",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "bytes4",
               name: "interfaceId",
               type: "bytes4",
@@ -1395,6 +1528,44 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "assetType",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "location",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "fullURI",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "assetThumbnail",
+              type: "string",
+            },
+          ],
+          name: "updateMetadata",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "bytes",
               name: "_request",
               type: "bytes",
@@ -1421,16 +1592,21 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "upkeepRequested",
-          outputs: [
+          inputs: [
             {
-              internalType: "bool",
-              name: "",
-              type: "bool",
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint224",
+              name: "value",
+              type: "uint224",
             },
           ],
-          stateMutability: "view",
+          name: "updateValuation",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -1467,11 +1643,6 @@ const deployedContracts = {
               type: "address",
             },
             {
-              internalType: "uint256",
-              name: "updateInterval",
-              type: "uint256",
-            },
-            {
               internalType: "address",
               name: "router",
               type: "address",
@@ -1499,6 +1670,11 @@ const deployedContracts = {
             },
           ],
           name: "AccessControlUnauthorizedAccount",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CheckpointUnorderedInsertion",
           type: "error",
         },
         {
@@ -1616,11 +1792,6 @@ const deployedContracts = {
         {
           inputs: [],
           name: "OnlyRouterCanFulfill",
-          type: "error",
-        },
-        {
-          inputs: [],
-          name: "OnlySimulatedBackend",
           type: "error",
         },
         {
@@ -1944,6 +2115,19 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "CERTIFIER_ROLE",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "DEFAULT_ADMIN_ROLE",
           outputs: [
             {
@@ -1999,6 +2183,53 @@ const deployedContracts = {
           name: "acceptOwnership",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "expiration",
+              type: "uint32",
+            },
+            {
+              internalType: "uint16",
+              name: "percentage",
+              type: "uint16",
+            },
+            {
+              internalType: "string",
+              name: "fullURI",
+              type: "string",
+            },
+          ],
+          name: "addWarranty",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "assetStates",
+          outputs: [
+            {
+              internalType: "enum RealWorldAsset.AssetState",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -2098,25 +2329,24 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "bytes",
-              name: "",
-              type: "bytes",
-            },
-          ],
-          name: "checkUpkeep",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "upkeepNeeded",
-              type: "bool",
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
             },
             {
-              internalType: "bytes",
-              name: "performData",
-              type: "bytes",
+              internalType: "address",
+              name: "certifier",
+              type: "address",
+            },
+            {
+              internalType: "uint16",
+              name: "percentage",
+              type: "uint16",
             },
           ],
-          stateMutability: "view",
+          name: "certifyAsset",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
@@ -2169,6 +2399,106 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
+          name: "getAssetState",
+          outputs: [
+            {
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getCertifiers",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "certifier",
+                  type: "address",
+                },
+                {
+                  internalType: "uint16",
+                  name: "percentage",
+                  type: "uint16",
+                },
+              ],
+              internalType: "struct RealWorldAsset.Certifier[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getLatestValuation",
+          outputs: [
+            {
+              internalType: "uint224",
+              name: "",
+              type: "uint224",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getLegalContract",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+                {
+                  internalType: "string",
+                  name: "uri",
+                  type: "string",
+                },
+              ],
+              internalType: "struct RealWorldAsset.LegalContract",
+              name: "",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
           name: "getMetadata",
           outputs: [
             {
@@ -2190,13 +2520,42 @@ const deployedContracts = {
                 },
                 {
                   internalType: "string",
-                  name: "jsonSchema",
+                  name: "assetThumbnail",
+                  type: "string",
+                },
+                {
+                  internalType: "string",
+                  name: "fullURI",
                   type: "string",
                 },
               ],
               internalType: "struct RealWorldAsset.Metadata",
               name: "",
               type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+          ],
+          name: "getOwnershipShare",
+          outputs: [
+            {
+              internalType: "uint16",
+              name: "",
+              type: "uint16",
             },
           ],
           stateMutability: "view",
@@ -2216,6 +2575,47 @@ const deployedContracts = {
               internalType: "bytes32",
               name: "",
               type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getWarranties",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "uint32",
+                  name: "timestamp",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "expiration",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint16",
+                  name: "percentage",
+                  type: "uint16",
+                },
+                {
+                  internalType: "string",
+                  name: "fullURI",
+                  type: "string",
+                },
+              ],
+              internalType: "struct RealWorldAsset.Warranty[]",
+              name: "",
+              type: "tuple[]",
             },
           ],
           stateMutability: "view",
@@ -2287,32 +2687,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "initialRequest",
-          outputs: [
-            {
-              internalType: "bool",
-              name: "",
-              type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "interval",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
           inputs: [
             {
               internalType: "address",
@@ -2331,53 +2705,6 @@ const deployedContracts = {
               internalType: "bool",
               name: "",
               type: "bool",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "lastTimeStamp",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "metadata",
-          outputs: [
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "assetType",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "location",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "jsonSchema",
-              type: "string",
             },
           ],
           stateMutability: "view",
@@ -2475,12 +2802,35 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "bytes",
-              name: "performData",
-              type: "bytes",
+              internalType: "address",
+              name: "certifier",
+              type: "address",
             },
           ],
-          name: "performUpkeep",
+          name: "registerCertifier",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint32",
+              name: "expiration",
+              type: "uint32",
+            },
+            {
+              internalType: "string",
+              name: "fullURI",
+              type: "string",
+            },
+          ],
+          name: "renewWarranty",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -2733,47 +3083,6 @@ const deployedContracts = {
         {
           inputs: [
             {
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "string",
-              name: "name",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "assetType",
-              type: "string",
-            },
-            {
-              internalType: "string",
-              name: "location",
-              type: "string",
-            },
-          ],
-          name: "setMetadata",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "string",
-              name: "newuri",
-              type: "string",
-            },
-          ],
-          name: "setURI",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
               internalType: "bytes4",
               name: "interfaceId",
               type: "bytes4",
@@ -2845,6 +3154,44 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "string",
+              name: "name",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "assetType",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "location",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "fullURI",
+              type: "string",
+            },
+            {
+              internalType: "string",
+              name: "assetThumbnail",
+              type: "string",
+            },
+          ],
+          name: "updateMetadata",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "bytes",
               name: "_request",
               type: "bytes",
@@ -2871,16 +3218,21 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "upkeepRequested",
-          outputs: [
+          inputs: [
             {
-              internalType: "bool",
-              name: "",
-              type: "bool",
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint224",
+              name: "value",
+              type: "uint224",
             },
           ],
-          stateMutability: "view",
+          name: "updateValuation",
+          outputs: [],
+          stateMutability: "nonpayable",
           type: "function",
         },
         {
