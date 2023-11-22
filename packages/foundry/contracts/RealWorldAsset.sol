@@ -85,7 +85,7 @@ contract RealWorldAsset is
     mapping(uint256 => mapping(address => uint16)) private _assetOwnershipShare; // 100% = 10000
 
     // Map token ID to current state
-    mapping(uint256 => AssetState) public assetStates;
+    mapping(uint256 => AssetState) private _assetStates;
 
     // Define a mapping to store the string representations of the enum values
     mapping(AssetState => string) private _assetStateToString;
@@ -173,7 +173,7 @@ contract RealWorldAsset is
         _legalContracts[id] = LegalContract(signature, legalURI);
 
         // Initial asset state
-        assetStates[id] = AssetState.Uncertified;
+        _assetStates[id] = AssetState.Uncertified;
 
         _mint(account, id, amount, data);
     }
@@ -200,7 +200,7 @@ contract RealWorldAsset is
     }
 
     function getAssetState(uint256 id) public view returns (string memory) {
-        return _assetStateToString[assetStates[id]];
+        return _assetStateToString[_assetStates[id]];
     }
 
     function updateMetadata(
@@ -234,6 +234,7 @@ contract RealWorldAsset is
     function certifyAsset(uint256 id, address certifier, uint16 percentage) public onlyRole(CERTIFIER_ROLE) {
         _certifiers[id].push(Certifier(certifier, percentage));
         _numberOfCertifiers[id] += 1;
+        _assetStates[id] = AssetState.Certified;
     }
 
     // function to register a new Certifier
@@ -302,8 +303,17 @@ contract RealWorldAsset is
     }
 
     // *********************************************************************************************
+    // * Public and External Functions
+    // * -- Transfers
+    // *********************************************************************************************
+
+    // TODO: add logic to restrict transfers based on asset state
+
+    // *********************************************************************************************
     // * The following functions are necessary for the Chainlink Decentralized Oracle Network (DON).
     // *********************************************************************************************
+
+    // TODO: Finish Chainlink Functions implementation with Automation cron jobs
 
     /**
      * @notice Send a pre-encoded CBOR request
