@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
 import { FormInput } from "~~/components/FormInput";
@@ -10,8 +11,21 @@ const SellerRegistration: React.FC = () => {
     firstName: "",
     lastName: "",
     walletAddress: "",
+    assetType: "",
   });
+  const [selectedOption, setSelectedOption] = useState("");
   const accountState = useAccount();
+
+  const optionMapping = {
+    option1: "Real Estate",
+    option2: "Luxury Goods",
+    option3: "Art & Collectibles",
+    option4: "Precious Metals",
+    option5: "Fine Wine & Spirits",
+    option6: "IP & Patents",
+    option7: "Vehicles",
+    option8: "Other",
+  };
 
   const nextPage = () => {
     setCurrentPage(currentPage + 1);
@@ -22,10 +36,17 @@ const SellerRegistration: React.FC = () => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value =
+      e.target.name === "assetType" ? optionMapping[e.target.value as keyof typeof optionMapping] : e.target.value;
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     });
+
+    if (e.target.name === "assetType") {
+      setSelectedOption(e.target.value);
+    }
   };
 
   const handleAddressChange = (newValue: string) => {
@@ -53,6 +74,8 @@ const SellerRegistration: React.FC = () => {
     }
   }, [accountState.address]);
 
+  //   console.log(formData);
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -69,6 +92,8 @@ const SellerRegistration: React.FC = () => {
 
           {currentPage === 1 && (
             <div className="form-control w-full max-w-lg p-4">
+              <h2 className="text-2xl text-center p-4">Basic Info to register with Polygon ID</h2>
+
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
                 <FormInput
                   label="First Name:"
@@ -103,21 +128,41 @@ const SellerRegistration: React.FC = () => {
           )}
 
           {currentPage === 2 && (
-            <form onSubmit={nextPage}>
-              <label>
-                Email:
-                {/* <input type="email" name="email" value={formData.email} onChange={handleChange} /> */}
-              </label>
-              <label>
-                Password:
-                {/* <input type="password" name="password" value={formData.password} onChange={handleChange} /> */}
-              </label>
-              {/* Add more form fields for page 2 */}
-              <button type="submit">Next</button>
-              <button type="button" onClick={previousPage}>
-                Previous
-              </button>
-            </form>
+            <div className="form-control w-full max-w-lg p-4">
+              <h2 className="text-2xl text-center p-4">Choose your Asset Type</h2>
+              <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
+                <div className="grid grid-cols-2 gap-4">
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <label
+                      key={i}
+                      className={`flex flex-col items-center justify-between p-4 rounded ${
+                        selectedOption === `option${i + 1}` ? "border-blue-500 border-2" : "border-gray-200 border"
+                      }`}
+                      style={{ cursor: "pointer", width: "200px", height: "200px" }}
+                    >
+                      <input
+                        type="radio"
+                        name="assetType"
+                        value={`option${i + 1}`}
+                        onChange={handleChange}
+                        className="appearance-none w-0 h-0"
+                      />
+                      <Image src={`/icon${i + 1}.svg`} alt={`Option ${i + 1}`} width={64} height={64} />
+                      <span>{optionMapping[`option${i + 1}` as keyof typeof optionMapping]}</span>
+                    </label>
+                  ))}
+                </div>
+
+                <div className="flex justify-between pt-4">
+                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
+                    Previous
+                  </button>
+                  <button type="submit" className="btn btn-sm btn-outline">
+                    Next
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
 
           {/* Add more pages as needed */}
