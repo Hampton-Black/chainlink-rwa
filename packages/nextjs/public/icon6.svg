@@ -1,0 +1,15 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="Group 14013">
+        <g id="monitor">
+            <path id="Vector"
+                d="M43.3197 30H76.6491C87.3289 30 89.9988 32.6699 89.9988 43.3197V62.3094C89.9988 72.9892 87.3289 75.6291 76.6791 75.6291H43.3197C32.6699 75.6591 30 72.9892 30 62.3394V43.3197C30 32.6699 32.6699 30 43.3197 30Z"
+                fill="none" stroke="#E63330" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path id="Vector_2" d="M60 75.6562V89.996" stroke="#E63330" stroke-width="4" stroke-linecap="round"
+                stroke-linejoin="round" />
+            <path id="Vector_3" d="M30 63H89.9988" stroke="#E63330" stroke-width="4" stroke-linecap="round"
+                stroke-linejoin="round" />
+            <path id="Vector_4" d="M46.5 90H73.4995" stroke="#E63330" stroke-width="4" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </g>
+    </g>
+</svg>

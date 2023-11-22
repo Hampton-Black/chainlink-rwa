@@ -1,0 +1,18 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="Group 14033">
+        <g id="Group 14032">
+            <path id="Vector"
+                d="M70.0059 37.0742H50.9934C44.2497 37.0742 42.7601 40.1742 41.8934 43.9742L38.833 57.4992H82.1663L79.1059 43.9742C78.2393 40.1742 76.7497 37.0742 70.0059 37.0742Z"
+                stroke="#E63330" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path id="Vector_2"
+                d="M87.5571 79.55C87.855 82.475 85.3092 85 82.0592 85H76.9675C74.0425 85 73.6363 83.85 73.1217 82.425L72.58 80.925C71.8217 78.875 71.3342 77.5 67.4342 77.5H53.5675C49.6675 77.5 49.0988 79.05 48.4217 80.925L47.88 82.425C47.3655 83.85 46.9592 85 44.0342 85H38.9425C35.6925 85 33.1467 82.475 33.4446 79.55L34.9613 64.325C35.3405 60.575 36.1259 57.5 43.2217 57.5H77.78C84.8759 57.5 85.6613 60.575 86.0405 64.325L87.5571 79.55Z"
+                stroke="#E63330" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <path id="Vector_3" d="M38.8333 50H36.125" stroke="#E63330" stroke-width="4" stroke-linecap="round"
+                stroke-linejoin="round" />
+            <path id="Vector_4" d="M84.8753 50H82.167" stroke="#E63330" stroke-width="4" stroke-linecap="round"
+                stroke-linejoin="round" />
+            <ellipse id="Ellipse 79" cx="75.6663" cy="68" rx="4.33333" ry="4" stroke="#E63330" stroke-width="3" />
+            <ellipse id="Ellipse 80" cx="45.3333" cy="68" rx="4.33333" ry="4" stroke="#E63330" stroke-width="3" />
+        </g>
+    </g>
+</svg>
