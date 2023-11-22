@@ -36,7 +36,6 @@ contract RealWorldAsset is
     struct Certifier {
         address certifier; // registered wallet address of certifier
         uint16 percentage; // 100% = 10000
-        string sampleThumbnail; // IPFS hash
     }
 
     struct Warranty {
@@ -50,7 +49,6 @@ contract RealWorldAsset is
         string name;
         string assetType;
         string location;
-        uint256 assetOwnershipShare; // 100% = 10000
         string assetThumbnail; // IPFS hash
         string fullURI; // IPFS hash
     }
@@ -62,25 +60,41 @@ contract RealWorldAsset is
 
     // Enum of different states of the asset
     enum AssetState {
+        DoesNotExist,
         Uncertified,
         Certified,
         Vaulted,
-        InTransit,
         InUse,
-        Destroyed
-    }
+        InEscrow,
+        InTransit,
+        Received,
+        Destroyed,
+        Rejected,
+        Disputed,
+        InArbitration,
+        ArbitrationComplete
+    } // possibly add modifiers to restrict certain functions to certain states
 
     // Map different types of metadata to token ID
-    mapping(uint256 => Metadata) public metadata;
-    mapping(uint256 => LegalContract) public legalContracts;
-    mapping(uint256 => Certifier[]) public certifiers;
-    mapping(uint256 => Warranty[]) public warranties;
+    mapping(uint256 => Metadata) private _metadata;
+    mapping(uint256 => LegalContract) private _legalContracts;
+    mapping(uint256 => Certifier[]) private _certifiers;
+    mapping(uint256 => Warranty[]) private _warranties;
+
+    // Map token ID to asset ownership share
+    mapping(uint256 => mapping(address => uint16)) private _assetOwnershipShare; // 100% = 10000
 
     // Map token ID to current state
     mapping(uint256 => AssetState) public assetStates;
 
+    // Define a mapping to store the string representations of the enum values
+    mapping(AssetState => string) private _assetStateToString;
+
     // Map token ID to dynamic valuation
     mapping(uint256 => Checkpoints.Trace224) private _valuations;
+
+    mapping(uint256 => uint32) private _numberOfCertifiers;
+    mapping(uint256 => uint32) private _numberOfWarranties;
 
     // @dev variables needed for Chainlink ops
     bytes public s_request;
@@ -111,6 +125,21 @@ contract RealWorldAsset is
         _grantRole(PAUSER_ROLE, deployer);
         _grantRole(METADATOR_ROLE, deployer);
 
+        // Initialize the mapping with the string representations of the enum values
+        _assetStateToString[AssetState.DoesNotExist] = "Does Not Exist";
+        _assetStateToString[AssetState.Uncertified] = "Uncertified";
+        _assetStateToString[AssetState.Certified] = "Certified";
+        _assetStateToString[AssetState.Vaulted] = "Vaulted";
+        _assetStateToString[AssetState.InUse] = "In Use";
+        _assetStateToString[AssetState.InEscrow] = "In Escrow";
+        _assetStateToString[AssetState.InTransit] = "In Transit";
+        _assetStateToString[AssetState.Received] = "Received";
+        _assetStateToString[AssetState.Destroyed] = "Destroyed";
+        _assetStateToString[AssetState.Rejected] = "Rejected";
+        _assetStateToString[AssetState.Disputed] = "Disputed";
+        _assetStateToString[AssetState.InArbitration] = "In Arbitration";
+        _assetStateToString[AssetState.ArbitrationComplete] = "Arbitration Complete";
+
         // note: testing only
         _grantRole(DEFAULT_ADMIN_ROLE, 0x6f440F479B9Acd8Da0471D852BCfAeA1B09987E6);
     }
@@ -133,14 +162,18 @@ contract RealWorldAsset is
         ) = abi.decode(data, (string, string, string, string, string, bytes, string));
 
         // calculate asset ownership share based on current balance
-        uint256 assetOwnershipShare = (balanceOf(account, id) + amount) * 10000 / (totalSupply(id) + amount);
+        uint256 newAssetOwnershipShare = (balanceOf(account, id) + amount) * 10000 / (totalSupply(id) + amount);
+        _assetOwnershipShare[id][account] = uint16(newAssetOwnershipShare);
 
         // Initial metadata creation
-        metadata[id] = Metadata(name, assetType, location, assetOwnershipShare, assetThumbnail, fullURI);
+        _metadata[id] = Metadata(name, assetType, location, assetThumbnail, fullURI);
 
         // Initial legal contract creation
         // TODO: add EIP-712 signature verification and revert if invalid?
-        legalContracts[id] = LegalContract(signature, legalURI);
+        _legalContracts[id] = LegalContract(signature, legalURI);
+
+        // Initial asset state
+        assetStates[id] = AssetState.Uncertified;
 
         _mint(account, id, amount, data);
     }
@@ -159,7 +192,15 @@ contract RealWorldAsset is
     // *********************************************************************************************
 
     function getMetadata(uint256 id) public view returns (Metadata memory) {
-        return metadata[id];
+        return _metadata[id];
+    }
+
+    function getOwnershipShare(uint256 id, address account) public view returns (uint16) {
+        return _assetOwnershipShare[id][account];
+    }
+
+    function getAssetState(uint256 id) public view returns (string memory) {
+        return _assetStateToString[assetStates[id]];
     }
 
     function updateMetadata(
@@ -170,25 +211,15 @@ contract RealWorldAsset is
         string memory fullURI,
         string memory assetThumbnail
     ) public onlyRole(METADATOR_ROLE) {
-        if (bytes(name).length != 0) {
-            metadata[id].name = name;
-        }
-        if (bytes(assetType).length != 0) {
-            metadata[id].assetType = assetType;
-        }
-        if (bytes(location).length != 0) {
-            metadata[id].location = location;
-        }
-        if (bytes(fullURI).length != 0) {
-            metadata[id].fullURI = fullURI;
-        }
-        if (bytes(assetThumbnail).length != 0) {
-            metadata[id].assetThumbnail = assetThumbnail;
-        }
+        _metadata[id].name = name;
+        _metadata[id].assetType = assetType;
+        _metadata[id].location = location;
+        _metadata[id].fullURI = fullURI;
+        _metadata[id].assetThumbnail = assetThumbnail;
     }
 
     function getLegalContract(uint256 id) public view returns (LegalContract memory) {
-        return legalContracts[id];
+        return _legalContracts[id];
     }
 
     // *********************************************************************************************
@@ -197,14 +228,12 @@ contract RealWorldAsset is
     // *********************************************************************************************
 
     function getCertifiers(uint256 id) public view returns (Certifier[] memory) {
-        return certifiers[id];
+        return _certifiers[id];
     }
 
-    function certifyAsset(uint256 id, address certifier, uint16 percentage, string memory sampleThumbnail)
-        public
-        onlyRole(CERTIFIER_ROLE)
-    {
-        certifiers[id].push(Certifier(certifier, percentage, sampleThumbnail));
+    function certifyAsset(uint256 id, address certifier, uint16 percentage) public onlyRole(CERTIFIER_ROLE) {
+        _certifiers[id].push(Certifier(certifier, percentage));
+        _numberOfCertifiers[id] += 1;
     }
 
     // function to register a new Certifier
@@ -222,14 +251,15 @@ contract RealWorldAsset is
     // *********************************************************************************************
 
     function getWarranties(uint256 id) public view returns (Warranty[] memory) {
-        return warranties[id];
+        return _warranties[id];
     }
 
     function addWarranty(uint256 id, uint32 expiration, uint16 percentage, string memory fullURI)
         public
         onlyRole(METADATOR_ROLE) // which role should this be?
     {
-        warranties[id].push(Warranty(uint32(block.timestamp), expiration, percentage, fullURI));
+        _warranties[id].push(Warranty(uint32(block.timestamp), expiration, percentage, fullURI));
+        _numberOfWarranties[id] += 1;
     }
 
     // function to renew a warranty
@@ -237,14 +267,14 @@ contract RealWorldAsset is
         public
         onlyRole(METADATOR_ROLE) // which role should this be?
     {
-        require(warranties[id].length > 0, "No warranty exists for this asset");
+        require(_warranties[id].length > 0, "No warranty exists for this asset");
 
         // retrieve warranty with same fullURI and update expiration
-        for (uint256 i = 0; i < warranties[id].length; i++) {
-            if (keccak256(bytes(warranties[id][i].fullURI)) == keccak256(bytes(fullURI))) {
-                require(warranties[id][i].expiration > block.timestamp, "Warranty has already expired");
+        for (uint256 i = 0; i < _warranties[id].length; i++) {
+            if (keccak256(bytes(_warranties[id][i].fullURI)) == keccak256(bytes(fullURI))) {
+                require(_warranties[id][i].expiration > block.timestamp, "Warranty has already expired");
 
-                warranties[id][i].expiration = expiration;
+                _warranties[id][i].expiration = expiration;
             }
         }
     }
