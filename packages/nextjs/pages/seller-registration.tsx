@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import { AssetTypeSelection } from "./../components/AssetTypeSelection";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
 import { FormInput } from "~~/components/FormInput";
@@ -131,27 +131,11 @@ const SellerRegistration: React.FC = () => {
             <div className="form-control w-full max-w-lg p-4">
               <h2 className="text-2xl text-center p-4">Choose your Asset Type</h2>
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
-                <div className="grid grid-cols-2 gap-4">
-                  {Array.from({ length: 8 }, (_, i) => (
-                    <label
-                      key={i}
-                      className={`flex flex-col items-center justify-between p-4 rounded ${
-                        selectedOption === `option${i + 1}` ? "border-blue-500 border-2" : "border-gray-200 border"
-                      }`}
-                      style={{ cursor: "pointer", width: "200px", height: "200px" }}
-                    >
-                      <input
-                        type="radio"
-                        name="assetType"
-                        value={`option${i + 1}`}
-                        onChange={handleChange}
-                        className="appearance-none w-0 h-0"
-                      />
-                      <Image src={`/icon${i + 1}.svg`} alt={`Option ${i + 1}`} width={64} height={64} />
-                      <span>{optionMapping[`option${i + 1}` as keyof typeof optionMapping]}</span>
-                    </label>
-                  ))}
-                </div>
+                <AssetTypeSelection
+                  selectedOption={selectedOption}
+                  handleChange={handleChange}
+                  optionMapping={optionMapping}
+                />
 
                 <div className="flex justify-between pt-4">
                   <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
@@ -164,8 +148,6 @@ const SellerRegistration: React.FC = () => {
               </form>
             </div>
           )}
-
-          {/* Add more pages as needed */}
 
           {currentPage === 3 && (
             <form onSubmit={handleSubmit}>
