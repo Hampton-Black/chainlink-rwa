@@ -12,8 +12,11 @@ const SellerRegistration: React.FC = () => {
     lastName: "",
     walletAddress: "",
     assetType: "",
+    assetName: "",
+    assetLocation: "",
   });
   const [selectedOption, setSelectedOption] = useState("");
+  const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
   const accountState = useAccount();
 
   const optionMapping = {
@@ -147,8 +150,35 @@ const SellerRegistration: React.FC = () => {
 
           {currentPage === 3 && (
             <div className="form-control w-full max-w-lg p-4">
-              <h2 className="text-2xl text-center p-4">Additional Details to mint your RWA NFT</h2>
-              <form onSubmit={nextPage}>
+              <h2 className="text-2xl text-center p-4">Required Data to mint your RWA NFT</h2>
+              <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
+                <FormInput
+                  label="Asset Name:"
+                  placeholder="Name of Asset"
+                  name="assetName"
+                  value={formData.assetName}
+                  onChange={handleChange}
+                />
+
+                <FormInput
+                  label="Asset Location:"
+                  placeholder="Location/Address of Asset"
+                  name="assetLocation"
+                  value={formData.assetLocation}
+                  onChange={handleChange}
+                />
+
+                <div className="form-control w-full">
+                  <label className="label">
+                    <span className="label-text">Asset Image (For NFT Thumbnail):</span>
+                  </label>
+                  <input
+                    type="file"
+                    placeholder="Image of Asset"
+                    className="file-input file-input-bordered file-input-accent w-full"
+                  />
+                </div>
+
                 <div className="flex justify-between pt-4">
                   <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
                     Previous
@@ -163,8 +193,58 @@ const SellerRegistration: React.FC = () => {
 
           {currentPage === 4 && (
             <div className="form-control w-full max-w-lg p-4">
+              <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
+              <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
+                <p className="text-justify">
+                  Please provide as much information as possible for the best experience for your buyers.
+                </p>
+                <p className="text-justify">
+                  Would you like to use public APIs to automatically populate this information?
+                </p>
+
+                {useApi === undefined ? (
+                  <div className="flex gap-4 p-4">
+                    <button type="button" onClick={() => setUseApi(false)} className="btn">
+                      <span className="text-xs">Enter manually instead</span>
+                    </button>
+                    <button type="button" onClick={() => setUseApi(true)} className="btn btn-wide btn-primary ">
+                      <span>Yes</span>
+                    </button>
+                  </div>
+                ) : useApi ? (
+                  <div>Render fetched data from API here</div>
+                ) : (
+                  <div>Render form inputs here</div>
+                )}
+
+                <div className="flex justify-between pt-4">
+                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
+                    Previous
+                  </button>
+                  <button type="submit" className="btn btn-sm btn-outline">
+                    Next
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {currentPage === 6 && (
+            <div className="form-control w-full max-w-lg p-4">
               <h2 className="text-2xl text-center p-4">Review and Submit</h2>
               <form onSubmit={handleSubmit}>
+                <div className="mockup-code">
+                  <pre>
+                    <code>
+                      {JSON.stringify(
+                        Object.entries(formData).map(([key, value]) => `${key}: ${value}`),
+                        null,
+                        2,
+                      )}
+                    </code>
+                  </pre>
+                </div>
+
                 <div className="flex justify-start pt-4">
                   <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
                     Previous
