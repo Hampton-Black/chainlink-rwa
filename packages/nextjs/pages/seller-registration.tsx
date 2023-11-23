@@ -83,7 +83,7 @@ const SellerRegistration: React.FC = () => {
           <h1 className="text-4xl text-center mt-10">Seller Registration</h1>
         </div>
 
-        <div className="col-span-1 ml-48 p-4">
+        <div className="col-span-1 ml-48 p-4 flex flex-col items-end">
           <StepList currentPage={currentPage} onStepClick={onStepClick} />
         </div>
 
