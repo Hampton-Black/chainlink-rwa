@@ -3,7 +3,10 @@ import { AssetTypeSelection } from "./../components/AssetTypeSelection";
 import axios from "axios";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
+import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
+import { FormButtons } from "~~/components/FormButtons";
 import { FormInput } from "~~/components/FormInput";
+import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { StepList } from "~~/components/StepList";
 
 interface FormData {
@@ -93,8 +96,6 @@ const SellerRegistration: React.FC = () => {
       ...formData,
       uploadedImage,
     });
-
-    // Handle form submission with updatedFormData here
 
     nextPage();
   };
@@ -198,14 +199,7 @@ const SellerRegistration: React.FC = () => {
                   optionMapping={optionMapping}
                 />
 
-                <div className="flex justify-between pt-4">
-                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
-                    Previous
-                  </button>
-                  <button type="submit" className="btn btn-sm btn-outline">
-                    Next
-                  </button>
-                </div>
+                <FormButtons previousPage={previousPage} />
               </form>
             </div>
           )}
@@ -241,14 +235,7 @@ const SellerRegistration: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex justify-between pt-4">
-                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
-                    Previous
-                  </button>
-                  <button type="submit" className="btn btn-sm btn-outline">
-                    Next
-                  </button>
-                </div>
+                <FormButtons previousPage={previousPage} />
               </form>
             </div>
           )}
@@ -275,28 +262,17 @@ const SellerRegistration: React.FC = () => {
                   </div>
                 ) : useApi ? (
                   apiData ? (
-                    <div className="mockup-code">
-                      <pre>
-                        <code>{JSON.stringify(apiData, null, 2)}</code>
-                      </pre>
-                    </div>
+                    <ApiDataDisplay apiData={apiData} />
                   ) : (
                     <div className="flex justify-center items-center h-full">
                       <span className="loading loading-dots loading-md"></span>
                     </div>
                   )
                 ) : (
-                  <div>Render Manual form inputs here</div>
+                  <ManualFormInputs handleChange={handleChange} />
                 )}
 
-                <div className="flex justify-between pt-4">
-                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
-                    Previous
-                  </button>
-                  <button type="submit" className="btn btn-sm btn-outline">
-                    Next
-                  </button>
-                </div>
+                <FormButtons previousPage={previousPage} />
               </form>
             </div>
           )}
@@ -323,7 +299,7 @@ const SellerRegistration: React.FC = () => {
                   </button>
                 </div>
                 <div className="flex justify-end pt-4 absolute bottom-40">
-                  <button type="submit" className="btn btn-wide btn-primary">
+                  <button type="submit" className="btn btn-wide dark:btn-accent btn-primary ">
                     Submit
                   </button>
                 </div>
