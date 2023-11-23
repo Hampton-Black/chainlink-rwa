@@ -74,8 +74,6 @@ const SellerRegistration: React.FC = () => {
     }
   }, [accountState.address]);
 
-  //   console.log(formData);
-
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -88,8 +86,6 @@ const SellerRegistration: React.FC = () => {
         </div>
 
         <div className="col-span-1 flex items-center justify-center">
-          {/* Registration form goes here */}
-
           {currentPage === 1 && (
             <div className="form-control w-full max-w-lg p-4">
               <h2 className="text-2xl text-center p-4">Basic Info to register with Polygon ID</h2>
@@ -150,13 +146,37 @@ const SellerRegistration: React.FC = () => {
           )}
 
           {currentPage === 3 && (
-            <form onSubmit={handleSubmit}>
-              {/* Add form fields for the final page */}
-              <button type="submit">Submit</button>
-              <button type="button" onClick={previousPage}>
-                Previous
-              </button>
-            </form>
+            <div className="form-control w-full max-w-lg p-4">
+              <h2 className="text-2xl text-center p-4">Additional Details to mint your RWA NFT</h2>
+              <form onSubmit={nextPage}>
+                <div className="flex justify-between pt-4">
+                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
+                    Previous
+                  </button>
+                  <button type="submit" className="btn btn-sm btn-outline">
+                    Next
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {currentPage === 4 && (
+            <div className="form-control w-full max-w-lg p-4">
+              <h2 className="text-2xl text-center p-4">Review and Submit</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="flex justify-start pt-4">
+                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
+                    Previous
+                  </button>
+                </div>
+                <div className="flex justify-end pt-4 absolute bottom-40">
+                  <button type="submit" className="btn btn-wide btn-primary">
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
           )}
         </div>
       </div>
