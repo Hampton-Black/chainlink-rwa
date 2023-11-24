@@ -1,13 +1,41 @@
 import { FormInput } from "./FormInput";
 
-export const ManualFormInputs: React.FC<{ handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void }> = ({
-  handleChange,
-}) => {
-  // Render your form inputs here, and use handleChange as the onChange handler
+export const ManualFormInputs: React.FC<{
+  manualFields: { key: string; value: string }[];
+  handleChange: (index: number, type: "key" | "value", event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleAddField: () => void;
+  handleRemoveField: (index: number) => void;
+}> = ({ manualFields, handleChange, handleAddField, handleRemoveField }) => {
   return (
     <div>
-      <FormInput label="item 1" placeholder="item 1" name="item1" value="" onChange={handleChange} />
-      {/* Add more inputs as needed */}
+      {manualFields.map((field, index) => (
+        <div key={index} className="flex justify-center items-center">
+          <div>
+            <FormInput
+              label="Key"
+              placeholder="Key"
+              name={`key${index}`}
+              value={field.key}
+              onChange={e => handleChange(index, "key", e)}
+            />
+            <FormInput
+              label="Value"
+              placeholder="Value"
+              name={`value${index}`}
+              value={field.value}
+              onChange={e => handleChange(index, "value", e)}
+            />
+          </div>
+          <button className="btn btn-square ml-4" onClick={() => handleRemoveField(index)}>
+            x
+          </button>
+        </div>
+      ))}
+      <div className="flex justify-center items-center p-2">
+        <button type="button" className="btn btn-square" onClick={handleAddField}>
+          +
+        </button>
+      </div>
     </div>
   );
 };

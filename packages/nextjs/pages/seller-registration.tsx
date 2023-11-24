@@ -34,6 +34,7 @@ const SellerRegistration: React.FC = () => {
   const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
   const [apiData, setApiData] = useState(null);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [manualFields, setManualFields] = useState([{ key: "", value: "" }]);
   const accountState = useAccount();
 
   const optionMapping = {
@@ -67,6 +68,22 @@ const SellerRegistration: React.FC = () => {
     if (e.target.name === "assetType") {
       setSelectedOption(e.target.value);
     }
+  };
+
+  const handleFieldChange = (index: number, type: "key" | "value", e: React.ChangeEvent<HTMLInputElement>) => {
+    const newFields = [...manualFields];
+    newFields[index][type] = e.target.value;
+    setManualFields(newFields);
+  };
+
+  const handleAddField = () => {
+    setManualFields([...manualFields, { key: "", value: "" }]);
+  };
+
+  const handleRemoveField = (index: number) => {
+    const newFields = [...manualFields];
+    newFields.splice(index, 1);
+    setManualFields(newFields);
   };
 
   const handleAddressChange = (newValue: string) => {
@@ -247,19 +264,21 @@ const SellerRegistration: React.FC = () => {
                 <p className="text-justify">
                   Please provide as much information as possible for the best experience for your buyers.
                 </p>
-                <p className="text-justify">
-                  Would you like to use public APIs to automatically populate this information?
-                </p>
 
                 {useApi === undefined ? (
-                  <div className="flex gap-4 p-4">
-                    <button type="button" onClick={() => setUseApi(false)} className="btn">
-                      <span className="text-xs">Enter manually instead</span>
-                    </button>
-                    <button type="button" onClick={() => setUseApi(true)} className="btn btn-wide btn-primary ">
-                      <span>Yes</span>
-                    </button>
-                  </div>
+                  <>
+                    <p className="text-justify">
+                      Would you like to use public APIs to automatically populate this information?
+                    </p>
+                    <div className="flex gap-4 p-4">
+                      <button type="button" onClick={() => setUseApi(false)} className="btn">
+                        <span className="text-xs">Enter manually instead</span>
+                      </button>
+                      <button type="button" onClick={() => setUseApi(true)} className="btn btn-wide btn-primary ">
+                        <span>Yes</span>
+                      </button>
+                    </div>
+                  </>
                 ) : useApi ? (
                   apiData ? (
                     <ApiDataDisplay apiData={apiData} />
@@ -269,7 +288,12 @@ const SellerRegistration: React.FC = () => {
                     </div>
                   )
                 ) : (
-                  <ManualFormInputs handleChange={handleChange} />
+                  <ManualFormInputs
+                    handleChange={handleFieldChange}
+                    manualFields={manualFields}
+                    handleAddField={handleAddField}
+                    handleRemoveField={handleRemoveField}
+                  />
                 )}
 
                 <FormButtons previousPage={previousPage} />
