@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [
@@ -161,6 +161,27 @@ const deployedContracts = {
         {
           inputs: [],
           name: "ExpectedPause",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "caller",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "automationRegistry",
+              type: "address",
+            },
+          ],
+          name: "NotAllowedCaller",
           type: "error",
         },
         {
@@ -585,25 +606,6 @@ const deployedContracts = {
           name: "addWarranty",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "assetStates",
-          outputs: [
-            {
-              internalType: "enum RealWorldAsset.AssetState",
-              name: "",
-              type: "uint8",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -1403,28 +1405,7 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "bytes",
-              name: "request",
-              type: "bytes",
-            },
-            {
-              internalType: "uint64",
-              name: "subscriptionId",
-              type: "uint64",
-            },
-            {
-              internalType: "uint32",
-              name: "gasLimit",
-              type: "uint32",
-            },
-            {
-              internalType: "bytes32",
-              name: "donID",
-              type: "bytes32",
-            },
-          ],
+          inputs: [],
           name: "sendRequestCBOR",
           outputs: [
             {
@@ -1450,6 +1431,32 @@ const deployedContracts = {
             },
           ],
           name: "setApprovalForAll",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_upkeepContract",
+              type: "address",
+            },
+          ],
+          name: "setAutomationCronContract",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "newURI",
+              type: "string",
+            },
+          ],
+          name: "setURI",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -1607,6 +1614,19 @@ const deployedContracts = {
           name: "updateValuation",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "upkeepContract",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -1633,7 +1653,7 @@ const deployedContracts = {
   },
   80001: {
     RealWorldAsset: {
-      address: "0xa7Cf39C58d45830CA54411bB0FE3bFF53a27B66c",
+      address: "0x5781d7f8fc387aD82917b6CF12b0e7A35b91f0FA",
       abi: [
         {
           inputs: [
@@ -1787,6 +1807,27 @@ const deployedContracts = {
         {
           inputs: [],
           name: "ExpectedPause",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "caller",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "automationRegistry",
+              type: "address",
+            },
+          ],
+          name: "NotAllowedCaller",
           type: "error",
         },
         {
@@ -2211,25 +2252,6 @@ const deployedContracts = {
           name: "addWarranty",
           outputs: [],
           stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          name: "assetStates",
-          outputs: [
-            {
-              internalType: "enum RealWorldAsset.AssetState",
-              name: "",
-              type: "uint8",
-            },
-          ],
-          stateMutability: "view",
           type: "function",
         },
         {
@@ -3029,28 +3051,7 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "bytes",
-              name: "request",
-              type: "bytes",
-            },
-            {
-              internalType: "uint64",
-              name: "subscriptionId",
-              type: "uint64",
-            },
-            {
-              internalType: "uint32",
-              name: "gasLimit",
-              type: "uint32",
-            },
-            {
-              internalType: "bytes32",
-              name: "donID",
-              type: "bytes32",
-            },
-          ],
+          inputs: [],
           name: "sendRequestCBOR",
           outputs: [
             {
@@ -3076,6 +3077,32 @@ const deployedContracts = {
             },
           ],
           name: "setApprovalForAll",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_upkeepContract",
+              type: "address",
+            },
+          ],
+          name: "setAutomationCronContract",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "newURI",
+              type: "string",
+            },
+          ],
+          name: "setURI",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -3233,6 +3260,19 @@ const deployedContracts = {
           name: "updateValuation",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "upkeepContract",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {

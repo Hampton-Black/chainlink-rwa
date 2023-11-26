@@ -7,7 +7,7 @@ const encoded = abi.encode(
   [
     "RWA test",
     "real estate",
-    "Miami, FL",
+    "43 5th Ave, New York, NY, 10003",
     "qmbeiffullURIHash",
     "qmbeifPhotoHash",
     "0x02382efe2282ab",
