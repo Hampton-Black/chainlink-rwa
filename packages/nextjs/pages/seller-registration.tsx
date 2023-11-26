@@ -9,6 +9,7 @@ import { FormButtons } from "~~/components/FormButtons";
 import { FormInput } from "~~/components/FormInput";
 import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { StepList } from "~~/components/StepList";
+import { EtherInput } from "~~/components/scaffold-eth";
 import BaseThumbnail from "~~/public/baseThumbnail.svg";
 
 interface FormData {
@@ -19,6 +20,7 @@ interface FormData {
   assetName: string;
   assetLocation: string;
   uploadedImage: File | null;
+  listPrice: string;
 }
 
 const SellerRegistration: NextPage = () => {
@@ -31,6 +33,7 @@ const SellerRegistration: NextPage = () => {
     assetName: "",
     assetLocation: "",
     uploadedImage: null,
+    listPrice: "",
   });
   const [selectedOption, setSelectedOption] = useState("");
   const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
@@ -242,6 +245,20 @@ const SellerRegistration: NextPage = () => {
                   value={formData.assetLocation}
                   onChange={handleChange}
                 />
+
+                <div className="form-control">
+                  <label htmlFor="price" className="label">
+                    <span className="label-text">Price:</span>
+                  </label>
+                  <EtherInput
+                    name="listPrice"
+                    placeholder="Enter price"
+                    value={formData.listPrice}
+                    onChange={value =>
+                      handleChange({ target: { name: "listPrice", value } } as React.ChangeEvent<HTMLInputElement>)
+                    }
+                  />
+                </div>
 
                 <div className="form-control w-full">
                   <label className="label">

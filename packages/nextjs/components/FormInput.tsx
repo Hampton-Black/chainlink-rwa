@@ -9,10 +9,12 @@ interface FormInputProps {
 }
 
 export const FormInput: React.FC<FormInputProps> = ({ label, placeholder, name, value, onChange }) => (
-  <label className="label justify-between">
-    <span className="label-text" style={{ width: "100px" }}>
-      {label}
-    </span>
+  <div className="form-control">
+    <label htmlFor={name} className="label justify-between">
+      <span className="label-text" style={{ width: "100px" }}>
+        {label}
+      </span>
+    </label>
     <input
       type="text"
       placeholder={placeholder}
@@ -21,5 +23,5 @@ export const FormInput: React.FC<FormInputProps> = ({ label, placeholder, name, 
       onChange={onChange}
       className="input w-full"
     />
-  </label>
+  </div>
 );

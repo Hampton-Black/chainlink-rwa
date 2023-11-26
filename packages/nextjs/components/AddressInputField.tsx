@@ -10,8 +10,10 @@ interface AddressInputFieldProps {
 }
 
 export const AddressInputField: React.FC<AddressInputFieldProps> = ({ label, placeholder, name, value, onChange }) => (
-  <label className="label">
-    <span className="label-text">{label}</span>
+  <>
+    <label className="label">
+      <span className="label-text">{label}</span>
+    </label>
     <AddressInput onChange={onChange} value={value} placeholder={placeholder} name={name} />
-  </label>
+  </>
 );
