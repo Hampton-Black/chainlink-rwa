@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AssetTypeSelection } from "./../components/AssetTypeSelection";
 import axios from "axios";
+import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
 import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
@@ -8,6 +9,7 @@ import { FormButtons } from "~~/components/FormButtons";
 import { FormInput } from "~~/components/FormInput";
 import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { StepList } from "~~/components/StepList";
+import BaseThumbnail from "~~/public/baseThumbnail.svg";
 
 interface FormData {
   firstName: string;
@@ -19,7 +21,7 @@ interface FormData {
   uploadedImage: File | null;
 }
 
-const SellerRegistration: React.FC = () => {
+const SellerRegistration: NextPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -168,9 +170,9 @@ const SellerRegistration: React.FC = () => {
           <StepList currentPage={currentPage} onStepClick={onStepClick} />
         </div>
 
-        <div className="col-span-1 flex items-center justify-center">
+        <div className="col-span-2 grid grid-cols-2 items-center justify-center">
           {currentPage === 1 && (
-            <div className="form-control w-full max-w-lg p-4">
+            <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
               <h2 className="text-2xl text-center p-4">Basic Info to register with Polygon ID</h2>
 
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
@@ -207,7 +209,7 @@ const SellerRegistration: React.FC = () => {
           )}
 
           {currentPage === 2 && (
-            <div className="form-control w-full max-w-lg p-4">
+            <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
               <h2 className="text-2xl text-center p-4">Choose your Asset Type</h2>
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
                 <AssetTypeSelection
@@ -222,7 +224,7 @@ const SellerRegistration: React.FC = () => {
           )}
 
           {currentPage === 3 && (
-            <div className="form-control w-full max-w-lg p-4">
+            <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
               <h2 className="text-2xl text-center p-4">Required Data to mint your RWA NFT</h2>
               <form onSubmit={handleImageSubmit} className="flex flex-col justify-around h-full">
                 <FormInput
@@ -258,16 +260,16 @@ const SellerRegistration: React.FC = () => {
           )}
 
           {currentPage === 4 && (
-            <div className="form-control w-full max-w-lg p-4">
-              <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
-              <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
-                <p className="text-justify">
+            <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
+              <h2 className="text-2xl text-center p-4 ml-12">Additional Details for your RWA NFT</h2>
+              <form onSubmit={nextPage} className="flex flex-col justify-around h-full ml-36">
+                <p className="text-center p-2">
                   Please provide as much information as possible for the best experience for your buyers.
                 </p>
 
                 {useApi === undefined ? (
                   <>
-                    <p className="text-justify">
+                    <p className="text-justify p-2">
                       Would you like to use public APIs to automatically populate this information?
                     </p>
                     <div className="flex gap-4 p-4">
@@ -303,12 +305,12 @@ const SellerRegistration: React.FC = () => {
 
           {/* create a new page that shows the legal contract and a button to sign */}
           {currentPage === 5 && (
-            <div className="form-control w-full max-w-lg p-4">
+            <div className="form-control w-full p-4 flex flex-col justify-center items-center ml-12">
               <h2 className="text-2xl text-center p-4">Legal Contract</h2>
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
-                <p className="text-justify">Please review the legal contract below and click the button to sign.</p>
+                <p className="text-center">Please review the legal contract below and click the button to sign.</p>
 
-                <div className="bg-white p-8 my-4 text-justify border border-gray-300 shadow-lg h-96 overflow-y-auto dark:text-black">
+                <div className="bg-white p-8 my-4 text-justify border border-gray-300 shadow-lg h-96 overflow-auto dark:text-black">
                   <h3 className="font-bold text-2xl mb-4">Contract Title</h3>
 
                   <p className="mb-4">
@@ -345,33 +347,38 @@ const SellerRegistration: React.FC = () => {
           )}
 
           {currentPage === 6 && (
-            <div className="form-control w-full max-w-lg p-4">
-              <h2 className="text-2xl text-center p-4">Review and Submit</h2>
-              <form onSubmit={handleFinalSubmit}>
-                <div className="mockup-code">
-                  <pre>
-                    <code>
-                      {JSON.stringify(
-                        Object.entries(formData).map(([key, value]) => `${key}: ${value}`),
-                        null,
-                        2,
-                      )}
-                    </code>
-                  </pre>
-                </div>
+            <>
+              <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
+                <h2 className="text-2xl text-center p-4">Review and Submit</h2>
+                <form onSubmit={handleFinalSubmit}>
+                  <div className="flex container w-full overflow-auto h-96 json-view rounded-lg p-4">
+                    <pre>
+                      <code>
+                        {JSON.stringify(
+                          Object.entries(formData).map(([key, value]) => `${key}: ${value}`),
+                          null,
+                          2,
+                        )}
+                      </code>
+                    </pre>
+                  </div>
 
-                <div className="flex justify-start pt-4">
-                  <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
-                    Previous
-                  </button>
-                </div>
-                <div className="flex justify-end pt-4 absolute bottom-40">
-                  <button type="submit" className="btn btn-wide dark:btn-accent btn-primary ">
-                    Submit
-                  </button>
-                </div>
-              </form>
-            </div>
+                  <div className="flex justify-start pt-4">
+                    <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
+                      Previous
+                    </button>
+                  </div>
+                  <div className="flex justify-end pt-4 ml-36 absolute bottom-40">
+                    <button type="submit" className="btn btn-wide dark:btn-accent btn-primary ">
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <div className="p-4 mt-16">
+                <BaseThumbnail />
+              </div>
+            </>
           )}
         </div>
       </div>
