@@ -261,9 +261,9 @@ const SellerRegistration: NextPage = () => {
 
           {currentPage === 4 && (
             <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
-              <h2 className="text-2xl text-center p-4 ml-12">Additional Details for your RWA NFT</h2>
-              <form onSubmit={nextPage} className="flex flex-col justify-around h-full ml-36">
-                <p className="text-center p-2">
+              <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
+              <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
+                <p className={`text-justify p-2 ${apiData ? "ml-36" : ""}`}>
                   Please provide as much information as possible for the best experience for your buyers.
                 </p>
 
@@ -298,7 +298,9 @@ const SellerRegistration: NextPage = () => {
                   />
                 )}
 
-                <FormButtons previousPage={previousPage} />
+                <div className={`${apiData ? "ml-36" : ""}`}>
+                  <FormButtons previousPage={previousPage} />
+                </div>
               </form>
             </div>
           )}
@@ -351,31 +353,25 @@ const SellerRegistration: NextPage = () => {
               <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
                 <h2 className="text-2xl text-center p-4">Review and Submit</h2>
                 <form onSubmit={handleFinalSubmit}>
-                  <div className="flex container w-full overflow-auto h-96 json-view rounded-lg p-4">
+                  <div className="flex container w-full overflow-auto h-max json-view rounded-lg p-4 ml-36">
                     <pre>
-                      <code>
-                        {JSON.stringify(
-                          Object.entries(formData).map(([key, value]) => `${key}: ${value}`),
-                          null,
-                          2,
-                        )}
-                      </code>
+                      <code>{JSON.stringify({ ...formData, apiData }, null, 2)}</code>
                     </pre>
                   </div>
 
-                  <div className="flex justify-start pt-4">
+                  <div className="flex justify-start pt-4 ml-36">
                     <button type="button" onClick={previousPage} className="btn btn-sm btn-outline">
                       Previous
                     </button>
                   </div>
-                  <div className="flex justify-end pt-4 ml-36 absolute bottom-40">
-                    <button type="submit" className="btn btn-wide dark:btn-accent btn-primary ">
+                  <div className="flex justify-center pt-4 ml-36 h-96">
+                    <button type="submit" className="btn btn-wide btn-lg dark:btn-accent btn-primary ">
                       Submit
                     </button>
                   </div>
                 </form>
               </div>
-              <div className="p-4 mt-16">
+              <div className="self-start sticky top-2 right-8 col-start-3 row-start-1 ml-24">
                 <BaseThumbnail />
               </div>
             </>
