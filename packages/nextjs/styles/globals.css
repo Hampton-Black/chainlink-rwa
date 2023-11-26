@@ -30,3 +30,13 @@ p {
 .btn.btn-ghost {
   @apply shadow-none;
 }
+
+.json-view {
+  background-color: #333333;
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
