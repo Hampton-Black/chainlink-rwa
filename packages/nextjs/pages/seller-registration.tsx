@@ -26,6 +26,11 @@ interface UserFormData {
   listPrice: string;
 }
 
+interface LegalContractData {
+  signature: string;
+  contractURI: string;
+}
+
 const SellerRegistration: NextPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<UserFormData>({
@@ -44,6 +49,8 @@ const SellerRegistration: NextPage = () => {
   const [image, setImage] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [manualFields, setManualFields] = useState([{ key: "", value: "" }]);
+  const [legalContractData, setLegalContractData] = useState<LegalContractData | null>(null);
+
   const accountState = useAccount();
 
   const optionMapping = {
@@ -63,6 +70,10 @@ const SellerRegistration: NextPage = () => {
 
   const previousPage = () => {
     setCurrentPage(currentPage - 1);
+  };
+
+  const handleLegalContractData = (signature: string, contractURI: string) => {
+    setLegalContractData({ signature, contractURI });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -380,6 +391,7 @@ const SellerRegistration: NextPage = () => {
                   firstName={formData.firstName}
                   lastName={formData.lastName}
                   walletAddress={formData.walletAddress}
+                  handleLegalContractData={handleLegalContractData}
                 />
 
                 <FormButtons previousPage={previousPage} />
@@ -390,11 +402,17 @@ const SellerRegistration: NextPage = () => {
           {currentPage === 6 && (
             <>
               <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
-                <h2 className="text-2xl text-center p-4">Review and Submit</h2>
-                <form onSubmit={handleFinalSubmit}>
-                  <div className="flex container w-full overflow-auto h-max json-view rounded-lg p-4 ml-36">
+                <h2 className="text-2xl text-center p-4 ml-10">Review and Submit</h2>
+                <form className="flex flex-col justify-end items-center" onSubmit={handleFinalSubmit}>
+                  <div className="container overflow-auto h-max w-1/2 json-view rounded-lg p-4 ml-36">
                     <pre>
-                      <code>{JSON.stringify({ ...formData, apiData }, null, 2)}</code>
+                      <code>
+                        {JSON.stringify(
+                          { ...formData, legalContractData, additionalDetails: apiData ? apiData : manualFields },
+                          null,
+                          2,
+                        )}
+                      </code>
                     </pre>
                   </div>
 
@@ -410,7 +428,7 @@ const SellerRegistration: NextPage = () => {
                   </div>
                 </form>
               </div>
-              <div className="self-start sticky top-2 right-8 col-start-3 row-start-1 ml-24">
+              <div className="self-start sticky top-2 right-8 col-start-3 row-start-1 ml-24 mt-10">
                 <BaseThumbnail
                   img={formData.uploadedImageIPFSHash}
                   assetCategory={formData.assetType}

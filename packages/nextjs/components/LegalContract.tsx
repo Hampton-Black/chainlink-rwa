@@ -1,13 +1,20 @@
 import React from "react";
 import { signTypedData } from "@wagmi/core";
+import axios from "axios";
 
 interface LegalContractProps {
   firstName: string;
   lastName: string;
   walletAddress: string;
+  handleLegalContractData: (signature: string, contractURI: string) => void;
 }
 
-const LegalContract: React.FC<LegalContractProps> = ({ firstName, lastName, walletAddress }: LegalContractProps) => {
+const LegalContract: React.FC<LegalContractProps> = ({
+  firstName,
+  lastName,
+  walletAddress,
+  handleLegalContractData,
+}: LegalContractProps) => {
   const contractTerms = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor aliquam lacus, at viverra ante dictum
     quis. Sed purus sem, scelerisque ac rhoncus eget, porttitor nec odio. Lorem ipsum dolor sit amet, consectetur
     adipiscing elit. Suspendisse potenti.
@@ -60,8 +67,38 @@ const LegalContract: React.FC<LegalContractProps> = ({ firstName, lastName, wall
       });
 
       console.log(signature);
-    } catch (error) {
-      console.error("Error signing data: ", error);
+
+      const data = JSON.stringify({
+        pinataContent: {
+          ...message,
+          effectiveDate: message.effectiveDate.toString(),
+        },
+        pinataMetadata: {
+          name: "RWA NFT Legal Contract for " + firstName + " " + lastName,
+          keyvalues: {
+            date: new Date().toISOString().split("T")[0],
+          },
+        },
+        pinataOptions: {
+          cidVersion: 1,
+        },
+      });
+
+      try {
+        const response = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
+          },
+        });
+        console.log(response.data);
+
+        handleLegalContractData(signature, response.data.IpfsHash);
+      } catch (err1) {
+        console.error("Error pinning to IPFS: ", err1);
+      }
+    } catch (err2) {
+      console.error("Error signing data: ", err2);
     }
   };
 
