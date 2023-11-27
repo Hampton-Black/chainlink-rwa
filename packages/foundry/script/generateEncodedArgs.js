@@ -22,3 +22,9 @@ console.log(encoded);
 
 let oneYearFromNow = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 365;
 console.log(oneYearFromNow);
+
+// decode the following
+const encodedData = "0x373139303030";
+const decodedValue = ethers.utils.toUtf8String(encodedData);
+
+console.log(decodedValue);
