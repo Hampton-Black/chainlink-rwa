@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { AssetTypeSelection } from "./../components/AssetTypeSelection";
 import axios from "axios";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
 import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
+import BaseThumbnail from "~~/components/BaseThumbnail";
 import { FormButtons } from "~~/components/FormButtons";
 import { FormInput } from "~~/components/FormInput";
 import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { StepList } from "~~/components/StepList";
 import { EtherInput } from "~~/components/scaffold-eth";
-import BaseThumbnail from "~~/public/baseThumbnail.svg";
 
 interface FormData {
   firstName: string;
@@ -19,7 +20,7 @@ interface FormData {
   assetType: string;
   assetName: string;
   assetLocation: string;
-  uploadedImage: File | null;
+  uploadedImageIPFSHash: string;
   listPrice: string;
 }
 
@@ -32,13 +33,13 @@ const SellerRegistration: NextPage = () => {
     assetType: "",
     assetName: "",
     assetLocation: "",
-    uploadedImage: null,
+    uploadedImageIPFSHash: "",
     listPrice: "",
   });
   const [selectedOption, setSelectedOption] = useState("");
   const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
   const [apiData, setApiData] = useState(null);
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [image, setImage] = useState<string | null>(null);
   const [manualFields, setManualFields] = useState([{ key: "", value: "" }]);
   const accountState = useAccount();
 
@@ -106,18 +107,31 @@ const SellerRegistration: NextPage = () => {
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setUploadedImage(event.target.files[0]);
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImage(reader.result);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    } else {
+      setImage(null);
     }
   };
 
   const handleImageSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setFormData({
-      ...formData,
-      uploadedImage,
-    });
+    // submit to Pinata first
+
+    // setFormData({
+    //   ...formData,
+    //   uploadedImage,
+    // });
 
     nextPage();
   };
@@ -137,9 +151,9 @@ const SellerRegistration: NextPage = () => {
   useEffect(() => {
     if (useApi) {
       // Split the full address into parts around comma (i.e. "4525 Dean Martin Dr, Las Vegas, NV 12434")
-      const [street, rest] = formData.assetLocation.split(",").map(part => part.trim());
+      const [street, cityState] = formData.assetLocation.split(",").map(part => part.trim());
       // Split the rest of the address into parts around the last space (i.e. "Las Vegas, NV 12434"), discarding the last part (i.e. "12434")
-      const [cityState] = rest.split(/\s(?=\d+$)/);
+      // const [cityState] = rest.split(/\s(?=\d+$)/);
 
       const address1 = street;
       const address2 = cityState;
@@ -269,6 +283,11 @@ const SellerRegistration: NextPage = () => {
                     onChange={handleImageUpload}
                     className="file-input file-input-bordered file-input-accent w-full"
                   />
+                  {image && (
+                    <div className="flex justify-center items-center p-2 mt-4">
+                      <Image src={image} alt="Uploaded Image" width={500} height={500} className="rounded-lg" />
+                    </div>
+                  )}
                 </div>
 
                 <FormButtons previousPage={previousPage} />
@@ -383,13 +402,18 @@ const SellerRegistration: NextPage = () => {
                   </div>
                   <div className="flex justify-center pt-4 ml-36 h-96">
                     <button type="submit" className="btn btn-wide btn-lg dark:btn-accent btn-primary ">
-                      Submit
+                      Mint
                     </button>
                   </div>
                 </form>
               </div>
               <div className="self-start sticky top-2 right-8 col-start-3 row-start-1 ml-24">
-                <BaseThumbnail />
+                <BaseThumbnail
+                  img={formData.uploadedImageIPFSHash}
+                  assetCategory={formData.assetType}
+                  numberOfCertifiers={0}
+                  numberOfWarranties={0}
+                />
               </div>
             </>
           )}
