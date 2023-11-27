@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { AssetTypeSelection } from "./../components/AssetTypeSelection";
+import LegalContract from "./../components/LegalContract";
 import axios from "axios";
 import FormData from "form-data";
 import { NextPage } from "next";
@@ -375,38 +376,11 @@ const SellerRegistration: NextPage = () => {
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
                 <p className="text-center">Please review the legal contract below and click the button to sign.</p>
 
-                <div className="bg-white p-8 my-4 text-justify border border-gray-300 shadow-lg h-96 overflow-auto dark:text-black">
-                  <h3 className="font-bold text-2xl mb-4">Contract Title</h3>
-
-                  <p className="mb-4">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor aliquam lacus, at viverra
-                    ante dictum quis. Sed purus sem, scelerisque ac rhoncus eget, porttitor nec odio. Lorem ipsum dolor
-                    sit amet, consectetur adipiscing elit. Suspendisse potenti.
-                  </p>
-                  {Array(3)
-                    .fill(null)
-                    .map((_, index) => (
-                      <React.Fragment key={index}>
-                        <p className="mb-4">
-                          Phasellus et lacinia lorem, id luctus dui. Nulla at semper nisl, at elementum elit. Nunc ut
-                          diam quis augue semper venenatis. Fusce sed nibh vitae velit sagittis egestas eu ut tortor.
-                          Nam risus erat, tristique at auctor nec, aliquet quis neque.
-                        </p>
-                        <p className="mb-4">
-                          Etiam a neque ut augue mattis gravida vel vel purus. Maecenas id varius velit, at luctus diam.
-                          Sed in sem convallis, pulvinar neque a, aliquet ante. Vestibulum ante ipsum primis in faucibus
-                          orci luctus et ultrices posuere cubilia curae; Sed libero velit, feugiat et lobortis at,
-                          accumsan sed arcu.
-                        </p>
-                      </React.Fragment>
-                    ))}
-                </div>
-
-                <div className="flex justify-center py-4">
-                  <button type="button" className="btn btn-wide dark:btn-accent btn-primary ">
-                    Sign Contract
-                  </button>
-                </div>
+                <LegalContract
+                  firstName={formData.firstName}
+                  lastName={formData.lastName}
+                  walletAddress={formData.walletAddress}
+                />
 
                 <FormButtons previousPage={previousPage} />
               </form>
