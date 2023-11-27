@@ -14,7 +14,7 @@ const ethers = require("ethers");
 const { base64 } = require("ethers/lib/utils");
 require("dotenv").config();
 
-const consumerAddress = "0xa7Cf39C58d45830CA54411bB0FE3bFF53a27B66c"; // REPLACE this with your Functions consumer address
+const consumerAddress = "0x5781d7f8fc387aD82917b6CF12b0e7A35b91f0FA"; // REPLACE this with your Functions consumer address
 const subscriptionId = 858; // REPLACE this with your subscription ID
 
 const updateRequestMumbai = async () => {
@@ -72,8 +72,10 @@ const updateRequestMumbai = async () => {
 
   console.log("metadataString: ", metadataString);
 
-  const args = ["1", metadataString]; // args to pass to the source script
-  const secrets = { apiKey: process.env.PINATA_API_KEY };
+  console.log("location: ", metadata.location);
+
+  const args = ["1", metadata.location]; // args to pass to the source script
+  const secrets = { apiKey: process.env.ATTOM_API_KEY };
   const slotIdNumber = 0; // slot ID where to upload the secrets
   const expirationTimeMinutes = 150; // expiration time in minutes of the secrets
   const gasLimit = 300_000;
@@ -159,7 +161,7 @@ const updateRequestMumbai = async () => {
   });
 
   // Update request settings
-  const transaction = await automatedFunctionsConsumer.sendRequestCBOR(
+  const transaction = await automatedFunctionsConsumer.updateRequest(
     functionsRequestBytesHexString,
     subscriptionId,
     gasLimit,
