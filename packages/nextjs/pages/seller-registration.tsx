@@ -383,21 +383,23 @@ const SellerRegistration: NextPage = () => {
                     ante dictum quis. Sed purus sem, scelerisque ac rhoncus eget, porttitor nec odio. Lorem ipsum dolor
                     sit amet, consectetur adipiscing elit. Suspendisse potenti.
                   </p>
-                  {Array(3).fill(
-                    <>
-                      <p className="mb-4">
-                        Phasellus et lacinia lorem, id luctus dui. Nulla at semper nisl, at elementum elit. Nunc ut diam
-                        quis augue semper venenatis. Fusce sed nibh vitae velit sagittis egestas eu ut tortor. Nam risus
-                        erat, tristique at auctor nec, aliquet quis neque.
-                      </p>
-                      <p className="mb-4">
-                        Etiam a neque ut augue mattis gravida vel vel purus. Maecenas id varius velit, at luctus diam.
-                        Sed in sem convallis, pulvinar neque a, aliquet ante. Vestibulum ante ipsum primis in faucibus
-                        orci luctus et ultrices posuere cubilia curae; Sed libero velit, feugiat et lobortis at,
-                        accumsan sed arcu.
-                      </p>
-                    </>,
-                  )}
+                  {Array(3)
+                    .fill(null)
+                    .map((_, index) => (
+                      <React.Fragment key={index}>
+                        <p className="mb-4">
+                          Phasellus et lacinia lorem, id luctus dui. Nulla at semper nisl, at elementum elit. Nunc ut
+                          diam quis augue semper venenatis. Fusce sed nibh vitae velit sagittis egestas eu ut tortor.
+                          Nam risus erat, tristique at auctor nec, aliquet quis neque.
+                        </p>
+                        <p className="mb-4">
+                          Etiam a neque ut augue mattis gravida vel vel purus. Maecenas id varius velit, at luctus diam.
+                          Sed in sem convallis, pulvinar neque a, aliquet ante. Vestibulum ante ipsum primis in faucibus
+                          orci luctus et ultrices posuere cubilia curae; Sed libero velit, feugiat et lobortis at,
+                          accumsan sed arcu.
+                        </p>
+                      </React.Fragment>
+                    ))}
                 </div>
 
                 <div className="flex justify-center py-4">
