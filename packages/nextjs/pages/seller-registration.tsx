@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { AssetTypeSelection } from "./../components/AssetTypeSelection";
 import axios from "axios";
+import FormData from "form-data";
 import { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
@@ -13,7 +14,7 @@ import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { StepList } from "~~/components/StepList";
 import { EtherInput } from "~~/components/scaffold-eth";
 
-interface FormData {
+interface UserFormData {
   firstName: string;
   lastName: string;
   walletAddress: string;
@@ -26,7 +27,7 @@ interface FormData {
 
 const SellerRegistration: NextPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<UserFormData>({
     firstName: "",
     lastName: "",
     walletAddress: "",
@@ -40,6 +41,7 @@ const SellerRegistration: NextPage = () => {
   const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
   const [apiData, setApiData] = useState(null);
   const [image, setImage] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [manualFields, setManualFields] = useState([{ key: "", value: "" }]);
   const accountState = useAccount();
 
@@ -109,6 +111,7 @@ const SellerRegistration: NextPage = () => {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
+      setUploadedFile(file);
       const reader = new FileReader();
 
       reader.onloadend = () => {
@@ -123,17 +126,41 @@ const SellerRegistration: NextPage = () => {
     }
   };
 
-  const handleImageSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleImageSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     // submit to Pinata first
+    const pinataFormData = new FormData();
+    pinataFormData.append("file", uploadedFile as Blob);
 
-    // setFormData({
-    //   ...formData,
-    //   uploadedImage,
-    // });
+    const metadata = JSON.stringify({
+      name: "RWA NFT Thumbnail for " + formData.assetName + " " + formData.assetType,
+    });
+    pinataFormData.append("pinataMetadata", metadata);
+
+    const options = JSON.stringify({
+      cidVersion: 1,
+    });
+    pinataFormData.append("pinataOptions", options);
 
     nextPage();
+
+    try {
+      const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", pinataFormData, {
+        maxBodyLength: Infinity,
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${(pinataFormData as any)._boundary}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
+        },
+      });
+      console.log(response.data);
+      setFormData({
+        ...formData,
+        uploadedImageIPFSHash: response.data.IpfsHash,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onStepClick = (stepNumber: number) => {
