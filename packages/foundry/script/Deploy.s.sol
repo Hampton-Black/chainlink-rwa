@@ -20,10 +20,8 @@ contract DeployScript is ScaffoldETHDeploy {
         console.log("Deploying contracts with the router: ", POLYGON_MUMBAI_CHAINLINK_ROUTER);
 
         vm.startBroadcast(deployerPrivateKey);
-        RealWorldAsset rwaContract = new RealWorldAsset(
-            vm.addr(deployerPrivateKey), 
-            address(POLYGON_MUMBAI_CHAINLINK_ROUTER)
-        );
+        RealWorldAsset rwaContract =
+            new RealWorldAsset(vm.addr(deployerPrivateKey), address(POLYGON_MUMBAI_CHAINLINK_ROUTER));
         console.logString(string.concat("RealWorldAsset contract deployed at: ", vm.toString(address(rwaContract))));
         vm.stopBroadcast();
 
