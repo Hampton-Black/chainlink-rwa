@@ -1,6 +1,6 @@
 <svg width="540" height="540" viewBox="0 0 540 540" fill="none" xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink">
-    <rect width="540" height="540" fill="#E5E5E5" />
+    <rect width="540" height="540" fill="none" />
     <g id="Image/Passport/Variant2">
         <path id="bg"
             d="M0 27C0 12.0883 12.0883 0 27 0H513C527.912 0 540 12.0883 540 27V513C540 527.912 527.912 540 513 540H27C12.0883 540 0 527.912 0 513V27Z"
