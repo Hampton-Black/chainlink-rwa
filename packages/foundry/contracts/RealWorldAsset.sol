@@ -9,6 +9,7 @@ import {AccessControl, IAccessControl} from "@openzeppelin/contracts/access/Acce
 import {ERC1155Pausable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import {ERC1155Burnable} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {ERC1155Supply} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
+import {ERC1155URIStorage} from "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155URIStorage.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_X/FunctionsClient.sol";
 import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
 
@@ -18,6 +19,7 @@ contract RealWorldAsset is
     ERC1155Pausable,
     ERC1155Burnable,
     ERC1155Supply,
+    ERC1155URIStorage,
     FunctionsClient,
     ConfirmedOwner
 {
@@ -106,6 +108,8 @@ contract RealWorldAsset is
     bytes public s_lastResponse;
     bytes public s_lastError;
 
+    uint256 private _tokenIdCounter;
+
     // *********************************************************************************************
     // * Custom Errors and Events
     // *********************************************************************************************
@@ -142,6 +146,8 @@ contract RealWorldAsset is
         _assetStateToString[AssetState.Disputed] = "Disputed";
         _assetStateToString[AssetState.InArbitration] = "In Arbitration";
         _assetStateToString[AssetState.ArbitrationComplete] = "Arbitration Complete";
+
+        _setBaseURI("https://ipfs.io/ipfs/");
 
         // note: testing only
         _grantRole(DEFAULT_ADMIN_ROLE, 0x6f440F479B9Acd8Da0471D852BCfAeA1B09987E6);
@@ -192,6 +198,43 @@ contract RealWorldAsset is
         // Initial asset state
         _assetStates[id] = AssetState.Uncertified;
 
+        _setURI(id, fullURI);
+
+        _mint(account, id, amount, data);
+    }
+
+    function mint(address account, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
+        // auto-increment token ID counter
+        _tokenIdCounter += 1;
+        uint256 id = _tokenIdCounter;
+
+        // decode data to get metadata values
+        (
+            string memory name,
+            string memory assetType,
+            string memory location,
+            string memory fullURI,
+            string memory assetThumbnail,
+            bytes memory signature,
+            string memory legalURI
+        ) = abi.decode(data, (string, string, string, string, string, bytes, string));
+
+        // calculate asset ownership share based on current balance
+        uint256 newAssetOwnershipShare = (balanceOf(account, id) + amount) * 10000 / (totalSupply(id) + amount);
+        _assetOwnershipShare[id][account] = uint16(newAssetOwnershipShare);
+
+        // Initial metadata creation
+        _metadata[id] = Metadata(name, assetType, location, assetThumbnail, fullURI);
+
+        // Initial legal contract creation
+        // TODO: add EIP-712 signature verification and revert if invalid?
+        _legalContracts[id] = LegalContract(signature, legalURI);
+
+        // Initial asset state
+        _assetStates[id] = AssetState.Uncertified;
+
+        _setURI(id, fullURI);
+
         _mint(account, id, amount, data);
     }
 
@@ -201,6 +244,14 @@ contract RealWorldAsset is
         onlyRole(MINTER_ROLE)
     {
         _mintBatch(to, ids, amounts, data);
+    }
+
+    function registerMinter(address minter) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        // TODO: add logic to verify minter is a valid address
+        // TODO: add logic to verify minter is not already registered
+        // TODO: EIP 712 signature verification?
+
+        _grantRole(MINTER_ROLE, minter);
     }
 
     // *********************************************************************************************
@@ -260,7 +311,6 @@ contract RealWorldAsset is
         _assetStates[id] = AssetState.Certified;
     }
 
-    // function to register a new Certifier
     function registerCertifier(address certifier) public onlyRole(DEFAULT_ADMIN_ROLE) {
         // TODO: add logic to verify certifier is a valid address
         // TODO: add logic to verify certifier is not already registered
@@ -280,17 +330,14 @@ contract RealWorldAsset is
 
     function addWarranty(uint256 id, uint32 expiration, uint16 percentage, string memory fullURI)
         public
-        onlyRole(METADATOR_ROLE) // which role should this be?
+        onlyRole(CERTIFIER_ROLE)
     {
         _warranties[id].push(Warranty(uint32(block.timestamp), expiration, percentage, fullURI));
         _numberOfWarranties[id] += 1;
     }
 
     // function to renew a warranty
-    function renewWarranty(uint256 id, uint32 expiration, string memory fullURI)
-        public
-        onlyRole(METADATOR_ROLE) // which role should this be?
-    {
+    function renewWarranty(uint256 id, uint32 expiration, string memory fullURI) public onlyRole(CERTIFIER_ROLE) {
         require(_warranties[id].length > 0, "No warranty exists for this asset");
 
         // retrieve warranty with same fullURI and update expiration
@@ -310,11 +357,6 @@ contract RealWorldAsset is
 
     function getLatestValuation(uint256 id) public view returns (uint224) {
         return _valuations[id].latest();
-    }
-
-    // note: which role should this be? Will be called by Chainlink Functions
-    function updateValuation(uint256 id, uint224 value) public onlyRole(METADATOR_ROLE) {
-        _valuations[id].push(uint32(block.timestamp), value);
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -388,7 +430,9 @@ contract RealWorldAsset is
         s_lastError = err;
         emit Response(requestId, s_lastResponse, s_lastError);
 
-        // TODO: add logic to parse response and update valuation
+        // note: hardcode for now/testing only
+        uint256 id = 1;
+        _valuations[id].push(uint32(block.timestamp), abi.decode(response, (uint224)));
     }
 
     // *********************************************************************************************
@@ -410,5 +454,9 @@ contract RealWorldAsset is
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    function uri(uint256 tokenId) public view virtual override(ERC1155URIStorage, ERC1155) returns (string memory) {
+        return super.uri(tokenId);
     }
 }
