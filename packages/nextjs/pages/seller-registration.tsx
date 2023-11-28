@@ -3,7 +3,7 @@ import Image from "next/image";
 import { AssetTypeSelection } from "./../components/AssetTypeSelection";
 import LegalContract from "./../components/LegalContract";
 import axios from "axios";
-import FormData from "form-data";
+import { ethers } from "ethers";
 import { NextPage } from "next";
 import { renderToStaticMarkup } from "react-dom/server";
 import { useAccount } from "wagmi";
@@ -15,6 +15,8 @@ import { FormInput } from "~~/components/FormInput";
 import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { StepList } from "~~/components/StepList";
 import { EtherInput } from "~~/components/scaffold-eth";
+import { useScaffoldContractWrite } from "~~/hooks/scaffold-eth";
+import { pinFileToIPFS, pinJSONToIPFS } from "~~/services/pinataService";
 
 interface UserFormData {
   firstName: string;
@@ -53,8 +55,23 @@ const SellerRegistration: NextPage = () => {
   const [legalContractData, setLegalContractData] = useState<LegalContractData | null>(null);
   const [fullMetadataURI, setFullMetadataURI] = useState("");
   const [fullNFTImageURI, setFullNFTImageURI] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const accountState = useAccount();
+
+  const { writeAsync } = useScaffoldContractWrite({
+    contractName: "RealWorldAsset",
+    functionName: "mint",
+    args: [undefined, undefined, undefined, undefined],
+    // For payable functions
+    value: undefined,
+    // The number of block confirmations to wait for before considering transaction to be confirmed (default : 1).
+    blockConfirmations: 1,
+    // The callback function to execute when the transaction is confirmed.
+    onBlockConfirmation: txnReceipt => {
+      console.log("Transaction blockHash", txnReceipt.blockHash);
+    },
+  });
 
   const optionMapping = {
     option1: "Real Estate",
@@ -121,9 +138,9 @@ const SellerRegistration: NextPage = () => {
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // format data for submission to Pinata
     const fullMetadata = { ...formData, legalContractData, additionalDetails: apiData ? apiData : manualFields };
 
-    // -----------  submit full metadata to Pinata
     const data = JSON.stringify({
       pinataContent: {
         ...fullMetadata,
@@ -139,20 +156,6 @@ const SellerRegistration: NextPage = () => {
       },
     });
 
-    try {
-      const response = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
-        },
-      });
-      console.log(response.data);
-      setFullMetadataURI(response.data.IpfsHash);
-    } catch (err1) {
-      console.error("Error pinning to IPFS: ", err1);
-    }
-
-    // ---------  submit current NFT thumbnail to Pinata
     // Serialize the SVG to a string
     const svgString = renderToStaticMarkup(
       <BaseThumbnail
@@ -189,20 +192,48 @@ const SellerRegistration: NextPage = () => {
     pinataFormData.append("pinataOptions", options);
 
     try {
-      const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", pinataFormData, {
-        maxBodyLength: Infinity,
-        headers: {
-          "Content-Type": `multipart/form-data; boundary=${(pinataFormData as any)._boundary}`,
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
-        },
-      });
-      console.log(response.data);
-      setFullNFTImageURI(response.data.IpfsHash);
-    } catch (error) {
-      console.log(error);
-    }
+      // open modal
+      setIsModalOpen(true);
 
+      const metadataURI = await pinJSONToIPFS(data);
+      const nftImageURI = await pinFileToIPFS(pinataFormData);
+      console.log(metadataURI);
+      console.log(nftImageURI);
+      setFullMetadataURI(metadataURI);
+      setFullNFTImageURI(nftImageURI);
+    } catch (error) {
+      console.error("Error pinning to IPFS: ", error);
+    }
+  };
+
+  const mintNFT = async () => {
     // ---------  call the contract to mint the NFT
+    // encode all collected data into a single bytes object for the smart contract
+    const abiEncoder = new ethers.AbiCoder();
+
+    const signatureBytes = ethers.getBytes(legalContractData?.signature ?? "0x00");
+
+    console.log("full URI: ", fullMetadataURI);
+    console.log("full NFT URI: ", fullNFTImageURI);
+
+    const types = ["string", "string", "string", "string", "string", "bytes", "string"];
+    const values = [
+      formData.assetName,
+      formData.assetType,
+      formData.assetLocation,
+      fullMetadataURI,
+      fullNFTImageURI,
+      signatureBytes,
+      legalContractData?.contractURI ?? "",
+    ];
+
+    const abiEncodedData = abiEncoder.encode(types, values);
+    const abiEncodedDataWithoutPrefix = abiEncodedData.substring(2);
+
+    // call the contract
+    await writeAsync({
+      args: [accountState.address, BigInt(3), BigInt(1), `0x${abiEncodedDataWithoutPrefix}`],
+    });
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -506,8 +537,8 @@ const SellerRegistration: NextPage = () => {
                     </button>
                   </div>
                   <div className="flex justify-center pt-4 ml-36 h-96">
-                    <button type="submit" className="btn btn-wide btn-lg dark:btn-accent btn-primary ">
-                      Mint
+                    <button type="submit" className="btn btn-wide btn-lg dark:btn-accent btn-primary">
+                      Submit to IPFS
                     </button>
                   </div>
                 </form>
@@ -520,6 +551,32 @@ const SellerRegistration: NextPage = () => {
                   numberOfWarranties={0}
                 />
               </div>
+              {isModalOpen && (
+                <dialog id="mint-modal" className="modal modal-open">
+                  {fullMetadataURI && fullNFTImageURI ? (
+                    <div className="modal-box text-center">
+                      <h2 className="text-xl">Successfully Uploaded!</h2>
+                      <p>Click below to mint your RWA NFT.</p>
+                      <div className="flex justify-center p-4">
+                        <button
+                          type="button"
+                          onClick={mintNFT}
+                          className="btn btn-wide btn-lg dark:btn-accent btn-primary "
+                        >
+                          Mint NFT
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex justify-center items-center h-full">
+                      <span className="loading loading-spinner loading-lg"></span>
+                    </div>
+                  )}
+                  <form method="dialog" className="modal-backdrop">
+                    <button onClick={() => setIsModalOpen(false)}>close</button>
+                  </form>
+                </dialog>
+              )}
             </>
           )}
         </div>
