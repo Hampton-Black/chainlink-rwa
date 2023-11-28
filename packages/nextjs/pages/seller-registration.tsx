@@ -5,6 +5,7 @@ import LegalContract from "./../components/LegalContract";
 import axios from "axios";
 import FormData from "form-data";
 import { NextPage } from "next";
+import { renderToStaticMarkup } from "react-dom/server";
 import { useAccount } from "wagmi";
 import { AddressInputField } from "~~/components/AddressInputField";
 import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
@@ -50,6 +51,8 @@ const SellerRegistration: NextPage = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [manualFields, setManualFields] = useState([{ key: "", value: "" }]);
   const [legalContractData, setLegalContractData] = useState<LegalContractData | null>(null);
+  const [fullMetadataURI, setFullMetadataURI] = useState("");
+  const [fullNFTImageURI, setFullNFTImageURI] = useState("");
 
   const accountState = useAccount();
 
@@ -115,9 +118,91 @@ const SellerRegistration: NextPage = () => {
     } as React.ChangeEvent<HTMLInputElement>);
   };
 
-  const handleFinalSubmit = (e: React.FormEvent) => {
+  const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here
+
+    const fullMetadata = { ...formData, legalContractData, additionalDetails: apiData ? apiData : manualFields };
+
+    // -----------  submit full metadata to Pinata
+    const data = JSON.stringify({
+      pinataContent: {
+        ...fullMetadata,
+      },
+      pinataMetadata: {
+        name: "Full Metadata for RWA NFT " + formData.assetName + " " + formData.assetType,
+        keyvalues: {
+          date: new Date().toISOString().split("T")[0],
+        },
+      },
+      pinataOptions: {
+        cidVersion: 1,
+      },
+    });
+
+    try {
+      const response = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
+        },
+      });
+      console.log(response.data);
+      setFullMetadataURI(response.data.IpfsHash);
+    } catch (err1) {
+      console.error("Error pinning to IPFS: ", err1);
+    }
+
+    // ---------  submit current NFT thumbnail to Pinata
+    // Serialize the SVG to a string
+    const svgString = renderToStaticMarkup(
+      <BaseThumbnail
+        img={formData.uploadedImageIPFSHash}
+        assetCategory={formData.assetType}
+        numberOfCertifiers={0}
+        numberOfWarranties={0}
+      />,
+    );
+
+    // Convert the string to a Buffer
+    const svgBuffer = Buffer.from(svgString);
+
+    // Create a Blob from the PNG Buffer
+    const svgBlob = new Blob([svgBuffer], { type: "image/svg+xml" });
+
+    // Create a File object from the Blob
+    const svgFile = new File([svgBlob], "nftThumbnail.svg");
+
+    // Create a FormData object
+    const pinataFormData = new FormData();
+
+    // Append the File object to the FormData object
+    pinataFormData.append("file", svgFile);
+
+    const metadata = JSON.stringify({
+      name: "Full RWA NFT Thumbnail for: " + formData.assetName + ", " + formData.assetType,
+    });
+    pinataFormData.append("pinataMetadata", metadata);
+
+    const options = JSON.stringify({
+      cidVersion: 1,
+    });
+    pinataFormData.append("pinataOptions", options);
+
+    try {
+      const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", pinataFormData, {
+        maxBodyLength: Infinity,
+        headers: {
+          "Content-Type": `multipart/form-data; boundary=${(pinataFormData as any)._boundary}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
+        },
+      });
+      console.log(response.data);
+      setFullNFTImageURI(response.data.IpfsHash);
+    } catch (error) {
+      console.log(error);
+    }
+
+    // ---------  call the contract to mint the NFT
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +231,7 @@ const SellerRegistration: NextPage = () => {
     pinataFormData.append("file", uploadedFile as Blob);
 
     const metadata = JSON.stringify({
-      name: "RWA NFT Thumbnail for " + formData.assetName + " " + formData.assetType,
+      name: "RWA NFT Thumbnail center image for: " + formData.assetName + ", " + formData.assetType,
     });
     pinataFormData.append("pinataMetadata", metadata);
 
@@ -190,12 +275,11 @@ const SellerRegistration: NextPage = () => {
   useEffect(() => {
     if (useApi) {
       // Split the full address into parts around comma (i.e. "4525 Dean Martin Dr, Las Vegas, NV 12434")
-      const [street, cityState] = formData.assetLocation.split(",").map(part => part.trim());
+      const [street, city, state] = formData.assetLocation.split(",");
       // Split the rest of the address into parts around the last space (i.e. "Las Vegas, NV 12434"), discarding the last part (i.e. "12434")
-      // const [cityState] = rest.split(/\s(?=\d+$)/);
 
       const address1 = street;
-      const address2 = cityState;
+      const address2 = city + ", " + state;
 
       axios
         .get("https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/basicprofile", {
