@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
       abi: [
         {
           inputs: [
@@ -747,6 +747,34 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "fractionalizeAsset",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "bytes32",
               name: "requestId",
               type: "bytes32",
@@ -1095,11 +1123,6 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
               name: "amount",
               type: "uint256",
             },
@@ -1184,6 +1207,19 @@ const deployedContracts = {
             },
           ],
           name: "registerCertifier",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "minter",
+              type: "address",
+            },
+          ],
+          name: "registerMinter",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -1599,24 +1635,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "uint224",
-              name: "value",
-              type: "uint224",
-            },
-          ],
-          name: "updateValuation",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
           inputs: [],
           name: "upkeepContract",
           outputs: [
@@ -1633,7 +1651,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "tokenId",
               type: "uint256",
             },
           ],
@@ -1653,7 +1671,7 @@ const deployedContracts = {
   },
   80001: {
     RealWorldAsset: {
-      address: "0x5781d7f8fc387aD82917b6CF12b0e7A35b91f0FA",
+      address: "0xDf8B43823ea49Bd6e8c4e92e246f1aDF5E1f4914",
       abi: [
         {
           inputs: [
@@ -2393,6 +2411,34 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes",
+              name: "data",
+              type: "bytes",
+            },
+          ],
+          name: "fractionalizeAsset",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "bytes32",
               name: "requestId",
               type: "bytes32",
@@ -2741,11 +2787,6 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "uint256",
               name: "amount",
               type: "uint256",
             },
@@ -2830,6 +2871,19 @@ const deployedContracts = {
             },
           ],
           name: "registerCertifier",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "minter",
+              type: "address",
+            },
+          ],
+          name: "registerMinter",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -3245,24 +3299,6 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "id",
-              type: "uint256",
-            },
-            {
-              internalType: "uint224",
-              name: "value",
-              type: "uint224",
-            },
-          ],
-          name: "updateValuation",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-        {
           inputs: [],
           name: "upkeepContract",
           outputs: [
@@ -3279,7 +3315,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "",
+              name: "tokenId",
               type: "uint256",
             },
           ],
