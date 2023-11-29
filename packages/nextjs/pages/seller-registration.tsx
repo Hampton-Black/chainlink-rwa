@@ -59,10 +59,11 @@ const SellerRegistration: NextPage = () => {
 
   const accountState = useAccount();
 
-  const { writeAsync } = useScaffoldContractWrite({
+  // write to mint function
+  const { writeAsync: writeAsyncMint } = useScaffoldContractWrite({
     contractName: "RealWorldAsset",
     functionName: "mint",
-    args: [undefined, undefined, undefined, undefined],
+    args: [undefined, undefined, undefined],
     // For payable functions
     value: undefined,
     // The number of block confirmations to wait for before considering transaction to be confirmed (default : 1).
@@ -231,8 +232,8 @@ const SellerRegistration: NextPage = () => {
     const abiEncodedDataWithoutPrefix = abiEncodedData.substring(2);
 
     // call the contract
-    await writeAsync({
-      args: [accountState.address, BigInt(3), BigInt(1), `0x${abiEncodedDataWithoutPrefix}`],
+    await writeAsyncMint({
+      args: [accountState.address, BigInt(1), `0x${abiEncodedDataWithoutPrefix}`],
     });
   };
 
