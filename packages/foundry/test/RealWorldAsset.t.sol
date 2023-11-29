@@ -29,7 +29,6 @@ contract CompilationTest is Test {
         asset.mint(
             alice,
             1,
-            1,
             abi.encode(
                 "name",
                 "assetType",
@@ -51,7 +50,7 @@ contract CompilationTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, bob, MINTER_ROLE)
         );
-        asset.mint(bob, 1, 1, "");
+        asset.mint(bob, 1, "");
         vm.stopPrank();
     }
 }

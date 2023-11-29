@@ -172,7 +172,14 @@ contract RealWorldAsset is
     // * -- minting
     // *********************************************************************************************
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
+    function fractionalizeAsset(address account, uint256 id, uint256 amount, bytes memory data)
+        public
+        onlyRole(MINTER_ROLE)
+    {
+        // Check token exists first
+        require(exists(id), "ERC1155: Can only fractionalize existing token.");
+
+        // note: should metadata and legal signatures always be updated?
         // decode data to get metadata values
         (
             string memory name,
@@ -203,7 +210,7 @@ contract RealWorldAsset is
         _mint(account, id, amount, data);
     }
 
-    function mint(address account, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
+    function mint(address account, uint256 amount, bytes memory data) public {
         // auto-increment token ID counter
         _tokenIdCounter += 1;
         uint256 id = _tokenIdCounter;
