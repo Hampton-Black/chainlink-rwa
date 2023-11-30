@@ -8,7 +8,7 @@ const Home: NextPage = () => {
       <MetaHeader />
       <div className="flex flex-col sm:flex-row items-center justify-center gap-10 pt-10">
         <div className="card w-96 bg-primary text-primary-content hover:scale-105 transition-transform duration-300">
-          <Link href="/buyer-registration">
+          <Link href="/register?role=buyer">
             <div className="card-body">
               <h2 className="card-title">Buyer</h2>
               <p>
@@ -28,7 +28,7 @@ const Home: NextPage = () => {
         </div>
 
         <div className="card w-96 bg-primary text-primary-content hover:scale-105 transition-transform duration-300">
-          <Link href="/seller-registration">
+          <Link href="/register?role=seller">
             <div className="card-body">
               <h2 className="card-title">Seller</h2>
               <p>
@@ -48,7 +48,7 @@ const Home: NextPage = () => {
         </div>
 
         <div className="card w-96 bg-primary text-primary-content hover:scale-105 transition-transform duration-300">
-          <Link href="/certifier-registration">
+          <Link href="/register?role=certifier">
             <div className="card-body">
               <h2 className="card-title">Certifier</h2>
               <p>
