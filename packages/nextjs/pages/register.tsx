@@ -57,7 +57,12 @@ const RegisterPage: NextPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement registration logic
+    // TODO: Implement Polygon ID registration logic
+
+    // Redirect to the dashboards or create page
+    if (queryRole === "seller") {
+      router.push("/create");
+    }
   };
 
   return (
