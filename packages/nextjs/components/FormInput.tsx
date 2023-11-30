@@ -9,7 +9,7 @@ interface FormInputProps {
 }
 
 export const FormInput: React.FC<FormInputProps> = ({ label, placeholder, name, value, onChange }) => (
-  <div className="form-control">
+  <div className="form-control p-1">
     <label htmlFor={name} className="label justify-between">
       <span className="label-text" style={{ width: "100px" }}>
         {label}
