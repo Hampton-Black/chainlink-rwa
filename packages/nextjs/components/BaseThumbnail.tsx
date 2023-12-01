@@ -231,13 +231,7 @@ const SvgBaseThumbnail = ({
         height={90}
         data-name="image.png"
       />
-      <image
-        xlinkHref={`https://turquoise-elderly-panther-553.mypinata.cloud/ipfs/${img}`}
-        id="baseThumbnail_svg__l"
-        width={600}
-        height={600}
-        data-name="image.png"
-      />
+      <image xlinkHref={img} id="baseThumbnail_svg__l" width={600} height={600} data-name="image.png" />
       <clipPath id="baseThumbnail_svg__h">
         <path fill="#fff" d="M21.292 58h18v20h-18z" />
       </clipPath>
