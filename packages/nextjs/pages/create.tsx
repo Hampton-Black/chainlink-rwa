@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { NextPage } from "next";
 import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
+import BaseThumbnail from "~~/components/BaseThumbnail";
 import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { EtherInput } from "~~/components/scaffold-eth";
-import BaseThumbnail from "~~/public/baseThumbnail.svg";
 
 interface FormState {
   title: string;
   category: string;
   location: string;
   description: string;
-  image: File | null;
+  image: string;
   price: string;
   expiryDate: Date;
 }
@@ -22,7 +22,7 @@ const MattereumPassport: NextPage = () => {
     category: "",
     location: "",
     description: "",
-    image: null,
+    image: "",
     price: "",
     expiryDate: new Date(),
   });
@@ -81,10 +81,17 @@ const MattereumPassport: NextPage = () => {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      setFormData({
-        ...formData,
-        image: event.target.files[0],
-      });
+      const uploadedFile = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        setFormData({
+          ...formData,
+          image: reader.result as string,
+        });
+      };
+
+      reader.readAsDataURL(uploadedFile);
     }
   };
 
@@ -120,7 +127,7 @@ const MattereumPassport: NextPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex-grow container mx-auto flex flex-col md:flex-row">
-        <main className="w-full md:w-1/4 bg-white p-8 shadow-md">
+        <main className="w-full md:w-1/4 glass p-8 shadow-md">
           <h1 className="text-2xl font-bold mb-8 text-center">Create New Passport</h1>
           {/* Form inputs and buttons */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -218,7 +225,12 @@ const MattereumPassport: NextPage = () => {
           <div className="p-4 mt-24">
             <h2 className="text-2xl font-bold mb-4 text-center text-gray-500">Passport Thumbnail Preview</h2>
             <div className="flex justify-center">
-              <BaseThumbnail />
+              <BaseThumbnail
+                img={formData.image}
+                assetCategory={formData.category}
+                numberOfCertifiers={0}
+                numberOfWarranties={0}
+              />
             </div>
           </div>
 
