@@ -1,4 +1,5 @@
 import { FormInput } from "./FormInput";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export const ManualFormInputs: React.FC<{
   manualFields: { key: string; value: string }[];
@@ -27,13 +28,13 @@ export const ManualFormInputs: React.FC<{
             />
           </div>
           <button className="btn btn-square ml-4" onClick={() => handleRemoveField(index)}>
-            x
+            <XMarkIcon className="h-4 w-4" />
           </button>
         </div>
       ))}
       <div className="flex justify-center items-center p-2">
         <button type="button" className="btn btn-square" onClick={handleAddField}>
-          +
+          <PlusIcon className="h-4 w-4" />
         </button>
       </div>
     </div>
