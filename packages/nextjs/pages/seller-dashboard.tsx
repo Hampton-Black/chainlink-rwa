@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import mockNfts from "../public/mockNfts.json";
 import { NextPage } from "next";
 
@@ -15,6 +15,7 @@ interface NFT {
 }
 
 const SellerDashboard: NextPage = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [nfts, setNfts] = useState<NFT[]>(mockNfts);
 
   // useEffect(() => {
