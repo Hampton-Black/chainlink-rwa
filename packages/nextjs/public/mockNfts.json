@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Mock NYC Condo RWA NFT",
+    "assetType": "Real Estate",
+    "assetStatus": "Uncertified",
+    "assetLocation": "New York",
+    "listPrice": "3000000",
+    "description": "This is a mock NFT for a NYC Condo RWA Asset",
+    "image": "/ny-highrise-condo.png",
+    "attributes": {
+      "color": "red",
+      "size": "small"
+    }
+  },
+  {
+    "name": "Mock Miami Mansion RWA NFT",
+    "assetType": "Real Estate",
+    "assetStatus": "Uncertified",
+    "assetLocation": "Florida",
+    "listPrice": "2000000",
+    "description": "This is a mock NFT for a Miami Mansion RWA Asset",
+    "image": "/digitized-miami-mansion.png",
+    "attributes": {
+      "color": "blue",
+      "size": "medium"
+    }
+  },
+  {
+    "name": "Mock Gold Bar RWA NFT",
+    "assetType": "Precious Metals",
+    "assetStatus": "Uncertified",
+    "assetLocation": "California",
+    "listPrice": "400000",
+    "description": "This is a mock NFT for a Gold Bar RWA Asset",
+    "image": "/gold-bar.png",
+    "attributes": {
+      "color": "green",
+      "size": "large"
+    }
+  }
+]
