@@ -214,6 +214,37 @@ const MattereumPassport: NextPage = () => {
               <EtherInput name="price" placeholder="Enter price" value={formData.price} onChange={handlePriceChange} />
             </div>
 
+            <h2 className="text-2xl text-center p-4">Additional Details</h2>
+
+            <p className="text-left">
+              Please provide as much information as possible for the best experience for your buyers.
+            </p>
+
+            {useApi === undefined ? (
+              <>
+                <p className="text-left">
+                  Would you like to use public APIs to automatically populate this information?
+                </p>
+                <div className="form-control flex flex-col items-center gap-4 p-4">
+                  <button type="button" onClick={() => setUseApi(true)} className="btn btn-wide btn-primary ">
+                    <span>Yes</span>
+                  </button>
+                  <button type="button" onClick={() => setUseApi(false)} className="btn">
+                    <span className="text-xs">Enter manually instead</span>
+                  </button>
+                </div>
+              </>
+            ) : useApi ? (
+              <></>
+            ) : (
+              <ManualFormInputs
+                handleChange={handleFieldChange}
+                manualFields={manualFields}
+                handleAddField={handleAddField}
+                handleRemoveField={handleRemoveField}
+              />
+            )}
+
             <div className="form-control p-12">
               <button type="submit" className="btn btn-primary">
                 Create Passport
@@ -235,43 +266,30 @@ const MattereumPassport: NextPage = () => {
           </div>
 
           <div className="form-control flex flex-col justify-center items-center p-4">
-            <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col justify-around h-full">
-              <p className="text-justify">
-                Please provide as much information as possible for the best experience for your buyers.
-              </p>
-
-              {useApi === undefined ? (
+            {useApi === undefined ? (
+              <></>
+            ) : useApi ? (
+              apiData ? (
                 <>
-                  <p className="text-justify">
-                    Would you like to use public APIs to automatically populate this information?
-                  </p>
-                  <div className="flex gap-4 p-4">
-                    <button type="button" onClick={() => setUseApi(false)} className="btn">
-                      <span className="text-xs">Enter manually instead</span>
-                    </button>
-                    <button type="button" onClick={() => setUseApi(true)} className="btn btn-wide btn-primary ">
-                      <span>Yes</span>
-                    </button>
-                  </div>
-                </>
-              ) : useApi ? (
-                apiData ? (
+                  <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
                   <ApiDataDisplay apiData={apiData} />
-                ) : (
-                  <div className="flex justify-center items-center h-full">
-                    <span className="loading loading-dots loading-md"></span>
-                  </div>
-                )
+                </>
               ) : (
+                <div className="flex justify-center items-center h-full">
+                  <span className="loading loading-dots loading-md"></span>
+                </div>
+              )
+            ) : (
+              <>
+                <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
                 <ManualFormInputs
                   handleChange={handleFieldChange}
                   manualFields={manualFields}
                   handleAddField={handleAddField}
                   handleRemoveField={handleRemoveField}
                 />
-              )}
-            </form>
+              </>
+            )}
           </div>
         </aside>
       </div>
