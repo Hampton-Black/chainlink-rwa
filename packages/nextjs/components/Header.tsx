@@ -19,8 +19,13 @@ export const menuLinks: HeaderMenuLink[] = [
     href: "/",
   },
   {
-    label: "Create",
+    label: "Create v1",
     href: "/create",
+    icon: <PlusIcon className="h-4 w-4" />,
+  },
+  {
+    label: "Create v2",
+    href: "/seller-registration",
     icon: <PlusIcon className="h-4 w-4" />,
   },
   {
