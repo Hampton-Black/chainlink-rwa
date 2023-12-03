@@ -7,7 +7,6 @@ import { ethers } from "ethers";
 import { NextPage } from "next";
 import { renderToStaticMarkup } from "react-dom/server";
 import { useAccount } from "wagmi";
-import { AddressInputField } from "~~/components/AddressInputField";
 import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
 import BaseThumbnail from "~~/components/BaseThumbnail";
 import { FormButtons } from "~~/components/FormButtons";
@@ -125,15 +124,6 @@ const SellerRegistration: NextPage = () => {
     const newFields = [...manualFields];
     newFields.splice(index, 1);
     setManualFields(newFields);
-  };
-
-  const handleAddressChange = (newValue: string) => {
-    handleChange({
-      target: {
-        name: "walletAddress",
-        value: newValue,
-      },
-    } as React.ChangeEvent<HTMLInputElement>);
   };
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
@@ -335,42 +325,24 @@ const SellerRegistration: NextPage = () => {
     <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="col-span-3 justify-center items-center">
-          <h1 className="text-4xl text-center mt-10">Seller Registration</h1>
+          <h1 className="text-4xl text-center mt-10">Create your RWA NFT</h1>
         </div>
 
-        <div className="col-span-1 ml-48 p-4 flex flex-col items-end">
+        <div className="col-span-1 ml-48 p-4 flex flex-col items-end text-justify">
           <StepList currentPage={currentPage} onStepClick={onStepClick} />
         </div>
 
         <div className="col-span-2 grid grid-cols-2 items-center justify-center">
           {currentPage === 1 && (
             <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
-              <h2 className="text-2xl text-center p-4">Basic Info to register with Polygon ID</h2>
-
+              <h2 className="text-2xl text-center p-4">Choose your Asset Type</h2>
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
-                <FormInput
-                  label="First Name:"
-                  placeholder="First Name"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
+                <AssetTypeSelection
+                  selectedOption={selectedOption}
+                  handleChange={handleChange}
+                  optionMapping={optionMapping}
                 />
 
-                <FormInput
-                  label="Last Name:"
-                  placeholder="Last Name"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                />
-
-                <AddressInputField
-                  label="Wallet Address:"
-                  placeholder="Wallet Address"
-                  name="walletAddress"
-                  value={formData.walletAddress}
-                  onChange={handleAddressChange}
-                />
                 <div className="self-end p-4">
                   <button type="submit" className="btn btn-sm btn-outline">
                     Next
@@ -381,21 +353,6 @@ const SellerRegistration: NextPage = () => {
           )}
 
           {currentPage === 2 && (
-            <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
-              <h2 className="text-2xl text-center p-4">Choose your Asset Type</h2>
-              <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
-                <AssetTypeSelection
-                  selectedOption={selectedOption}
-                  handleChange={handleChange}
-                  optionMapping={optionMapping}
-                />
-
-                <FormButtons previousPage={previousPage} />
-              </form>
-            </div>
-          )}
-
-          {currentPage === 3 && (
             <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
               <h2 className="text-2xl text-center p-4">Required Data to mint your RWA NFT</h2>
               <form onSubmit={handleImageSubmit} className="flex flex-col justify-around h-full">
@@ -414,6 +371,16 @@ const SellerRegistration: NextPage = () => {
                   value={formData.assetLocation}
                   onChange={handleChange}
                 />
+
+                <div className="form-control w-full">
+                  <label className="label">
+                    <span className="label-text">Asset Description:</span>
+                  </label>
+                  <textarea
+                    className="textarea h-24 textarea-bordered rounded-lg"
+                    placeholder="Enter description"
+                  ></textarea>
+                </div>
 
                 <div className="form-control">
                   <label htmlFor="price" className="label">
@@ -450,7 +417,7 @@ const SellerRegistration: NextPage = () => {
             </div>
           )}
 
-          {currentPage === 4 && (
+          {currentPage === 3 && (
             <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
               <h2 className="text-2xl text-center p-4">Additional Details for your RWA NFT</h2>
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
@@ -497,7 +464,7 @@ const SellerRegistration: NextPage = () => {
           )}
 
           {/* create a new page that shows the legal contract and a button to sign */}
-          {currentPage === 5 && (
+          {currentPage === 4 && (
             <div className="form-control w-full p-4 flex flex-col justify-center items-center ml-12">
               <h2 className="text-2xl text-center p-4">Legal Contract</h2>
               <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
@@ -515,7 +482,7 @@ const SellerRegistration: NextPage = () => {
             </div>
           )}
 
-          {currentPage === 6 && (
+          {currentPage === 5 && (
             <>
               <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center ml-36">
                 <h2 className="text-2xl text-center p-4 ml-10">Review and Submit</h2>
@@ -546,7 +513,7 @@ const SellerRegistration: NextPage = () => {
               </div>
               <div className="self-start sticky top-2 right-8 col-start-3 row-start-1 ml-24 mt-10">
                 <BaseThumbnail
-                  img={formData.uploadedImageIPFSHash}
+                  img={image as string}
                   assetCategory={formData.assetType}
                   numberOfCertifiers={0}
                   numberOfWarranties={0}
