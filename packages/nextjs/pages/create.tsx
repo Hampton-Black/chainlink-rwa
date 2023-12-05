@@ -22,6 +22,7 @@ interface FormState {
   image: string;
   price: string;
   expiryDate: Date;
+  DID?: string;
 }
 
 interface LegalContractData {
@@ -40,6 +41,7 @@ const MattereumPassport: NextPage = () => {
     image: "",
     price: "",
     expiryDate: new Date(),
+    DID: "",
   });
   const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
   const [apiData, setApiData] = useState(null);
@@ -164,9 +166,9 @@ const MattereumPassport: NextPage = () => {
       // open modal
       setIsModalOpen(true);
 
-      // const nftImageURI = await pinFileToIPFS(pinataFormData);
-      // console.log(nftImageURI);
-      // setFullNFTImageURI(nftImageURI);
+      const nftImageURI = await pinFileToIPFS(pinataFormData);
+      console.log(nftImageURI);
+      setFullNFTImageURI(nftImageURI);
     } catch (error) {
       console.error("Error pinning to IPFS: ", error);
     }
@@ -176,7 +178,15 @@ const MattereumPassport: NextPage = () => {
     e.preventDefault();
 
     // format data for submission to Pinata
-    const fullMetadata = { ...formData, legalContractData, additionalDetails: apiData ? apiData : manualFields };
+    const fullMetadata = {
+      name: formData.title,
+      description: formData.description,
+      assetType: formData.category,
+      image: `ipfs://${fullNFTImageURI}`,
+      location: formData.location,
+      legalContractData,
+      attributes: apiData ? apiData : manualFields,
+    };
 
     const data = JSON.stringify({
       pinataContent: {
@@ -457,9 +467,8 @@ const MattereumPassport: NextPage = () => {
                     <p className="text-center">Please review the legal contract below and click the button to sign.</p>
 
                     <LegalContract
-                      firstName={formData.firstName}
-                      lastName={formData.lastName}
-                      walletAddress={formData.walletAddress}
+                      DID={formData.DID || ""}
+                      walletAddress={accountState.address || ""}
                       handleLegalContractData={handleLegalContractData}
                     />
 
