@@ -26,6 +26,7 @@ interface UserFormData {
   assetLocation: string;
   uploadedImageIPFSHash: string;
   listPrice: string;
+  DID: string;
 }
 
 interface LegalContractData {
@@ -44,6 +45,7 @@ const SellerRegistration: NextPage = () => {
     assetLocation: "",
     uploadedImageIPFSHash: "",
     listPrice: "",
+    DID: "",
   });
   const [selectedOption, setSelectedOption] = useState("");
   const [useApi, setUseApi] = useState<boolean | undefined>(undefined);
@@ -471,9 +473,8 @@ const SellerRegistration: NextPage = () => {
                 <p className="text-center">Please review the legal contract below and click the button to sign.</p>
 
                 <LegalContract
-                  firstName={formData.firstName}
-                  lastName={formData.lastName}
-                  walletAddress={formData.walletAddress}
+                  DID={formData.DID || ""}
+                  walletAddress={accountState.address || ""}
                   handleLegalContractData={handleLegalContractData}
                 />
 

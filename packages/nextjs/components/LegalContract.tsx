@@ -1,17 +1,15 @@
 import React from "react";
 import { signTypedData } from "@wagmi/core";
-import axios from "axios";
+import { pinJSONToIPFS } from "~~/services/pinataService";
 
 interface LegalContractProps {
-  firstName: string;
-  lastName: string;
+  DID: string;
   walletAddress: string;
   handleLegalContractData: (signature: string, contractURI: string) => void;
 }
 
 const LegalContract: React.FC<LegalContractProps> = ({
-  firstName,
-  lastName,
+  DID,
   walletAddress,
   handleLegalContractData,
 }: LegalContractProps) => {
@@ -40,7 +38,7 @@ const LegalContract: React.FC<LegalContractProps> = ({
       { name: "effectiveDate", type: "uint256" },
     ],
     Party: [
-      { name: "name", type: "string" },
+      { name: "DID", type: "string" },
       { name: "address", type: "address" },
     ],
   } as const;
@@ -49,7 +47,7 @@ const LegalContract: React.FC<LegalContractProps> = ({
     title: "Issuance Agreement for Real World Asset Semi-fungible Tokens with Mattereum",
     parties: [
       {
-        name: `${firstName} ${lastName}`,
+        DID: DID,
         address: walletAddress,
       },
     ],
@@ -74,7 +72,7 @@ const LegalContract: React.FC<LegalContractProps> = ({
           effectiveDate: message.effectiveDate.toString(),
         },
         pinataMetadata: {
-          name: "RWA NFT Legal Contract for " + firstName + " " + lastName,
+          name: "RWA NFT Legal Contract for " + DID,
           keyvalues: {
             date: new Date().toISOString().split("T")[0],
           },
@@ -85,15 +83,10 @@ const LegalContract: React.FC<LegalContractProps> = ({
       });
 
       try {
-        const response = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_API_KEY}`,
-          },
-        });
-        console.log(response.data);
+        const response = await pinJSONToIPFS(data);
+        console.log(response);
 
-        handleLegalContractData(signature, response.data.IpfsHash);
+        handleLegalContractData(signature, response);
       } catch (err1) {
         console.error("Error pinning to IPFS: ", err1);
       }
