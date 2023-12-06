@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { ProtectedLink } from "./ProtectedLink";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import { Bars3Icon, BugAntIcon } from "@heroicons/react/24/outline";
 import { FaucetButton, RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -36,24 +36,15 @@ export const menuLinks: HeaderMenuLink[] = [
 ];
 
 export const HeaderMenuLinks = () => {
-  const router = useRouter();
-
   return (
     <>
       {menuLinks.map(({ label, href, icon }) => {
-        const isActive = router.pathname === href;
         return (
           <li key={href}>
-            <Link
-              href={href}
-              passHref
-              className={`${
-                isActive ? "bg-secondary shadow-md" : ""
-              } hover:bg-secondary hover:shadow-md focus:!bg-secondary active:!text-neutral py-1.5 px-3 text-sm rounded-full gap-2 grid grid-flow-col`}
-            >
+            <ProtectedLink href={href}>
               {icon}
               <span>{label}</span>
-            </Link>
+            </ProtectedLink>
           </li>
         );
       })}
