@@ -59,18 +59,18 @@ const AssetPage: NextPage = () => {
   }, [tokenId, contract, deployedABI]);
 
   return (
-    <div>
-      {nft ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {image && <img src={image} alt="NFT" width={300} height={300} className="rounded-lg" />}
-          <p>Owner: {nft.owner}</p>
-        </>
-      ) : (
-        <>
-          <p>Loading...</p> <span className="loading loading-spinner loading-lg"></span>
-        </>
-      )}
+    <div className="flex flex-col md:flex-row justify-center items-start md:items-center md:space-x-6 p-16">
+      <div className="flex-shrink-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {image && <img src={image} alt="NFT" width={600} height={600} className="rounded-lg" />}
+      </div>
+      <div className="mt-6 md:mt-0 px-8">
+        <h2 className="text-2xl font-bold">NFT Title</h2>
+        <p className="mt-2 text-gray-600">NFT Description</p>
+        <h3 className="mt-4 text-xl">Owner</h3>
+        <p>{nft?.owner}</p>
+        <button className="mt-4 px-6 py-2 btn btn-primary btn-wide">Buy Now</button>
+      </div>
     </div>
   );
 };
