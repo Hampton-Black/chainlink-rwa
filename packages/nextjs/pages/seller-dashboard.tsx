@@ -18,6 +18,7 @@ const SellerDashboard: NextPage = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [nfts, setNfts] = useState<NFT[]>(mockNfts);
 
+  // @TODO: to do this properly, will need to setup a Graph Subgraph to query all NFTs in contract to display
   // useEffect(() => {
   // Fetch the NFTs created by the current user
   // This is just a placeholder, replace it with your actual data fetching code

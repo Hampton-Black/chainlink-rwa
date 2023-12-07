@@ -3,6 +3,8 @@ import { Dispatch, ReactNode, SetStateAction, createContext, useContext, useStat
 interface AccessContextValue {
   provedKYCAccess: boolean;
   setProvedKYCAccess: Dispatch<SetStateAction<boolean>>;
+  userType: string;
+  setUserType: Dispatch<SetStateAction<string>>;
 }
 
 const AccessContext = createContext<AccessContextValue | null>(null);
@@ -18,10 +20,13 @@ interface AccessProviderProps {
 
 export function AccessProvider({ children }: AccessProviderProps) {
   const [provedKYCAccess, setProvedKYCAccess] = useState(false);
+  const [userType, setUserType] = useState("");
 
   const value = {
     provedKYCAccess,
     setProvedKYCAccess,
+    userType,
+    setUserType,
   };
 
   return <AccessContext.Provider value={value}>{children}</AccessContext.Provider>;
