@@ -64,12 +64,21 @@ const AssetPage: NextPage = () => {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         {image && <img src={image} alt="NFT" width={600} height={600} className="rounded-lg" />}
       </div>
-      <div className="mt-6 md:mt-0 px-8">
+      <div className="mt-6 md:mt-0 p-8">
         <h2 className="text-2xl font-bold">NFT Title</h2>
         <p className="mt-2 text-gray-600">NFT Description</p>
         <h3 className="mt-4 text-xl">Owner</h3>
         <p>{nft?.owner}</p>
+        <h3 className="mt-4 text-xl">Asset Location</h3>
+        <p>Asset Location</p>
+        <h3 className="mt-4 text-xl">Asset Status</h3>
+        <p>Asset Status</p>
+        <h3 className="mt-4 text-xl">Price</h3>
+        <p>Price</p>
         <button className="mt-4 px-6 py-2 btn btn-primary btn-wide">Buy Now</button>
+
+        <h2 className="mt-8 text-2xl font-bold italic">Certifiers only</h2>
+        <button className="mt-4 px-6 py-2 btn btn-secondary btn-wide">Add Warranty</button>
       </div>
     </div>
   );
