@@ -14,7 +14,7 @@ const ethers = require("ethers");
 const { base64 } = require("ethers/lib/utils");
 require("dotenv").config();
 
-const consumerAddress = "0x5781d7f8fc387aD82917b6CF12b0e7A35b91f0FA"; // REPLACE this with your Functions consumer address
+const consumerAddress = "0xDf8B43823ea49Bd6e8c4e92e246f1aDF5E1f4914"; // REPLACE this with your Functions consumer address
 const subscriptionId = 858; // REPLACE this with your subscription ID
 
 const updateRequestMumbai = async () => {
@@ -74,7 +74,7 @@ const updateRequestMumbai = async () => {
 
   console.log("location: ", metadata.location);
 
-  const args = ["1", metadata.location]; // args to pass to the source script
+  const args = ["9", metadata.location]; // args to pass to the source script
   const secrets = { apiKey: process.env.ATTOM_API_KEY };
   const slotIdNumber = 0; // slot ID where to upload the secrets
   const expirationTimeMinutes = 150; // expiration time in minutes of the secrets
