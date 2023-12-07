@@ -43,8 +43,9 @@ function PolygonIDVerifier({
     if (typeof window !== "undefined") {
       setServerUrl(window.location.href.startsWith("https") ? publicServerURL : localServerURL);
     }
-  }, []);
+  }, [publicServerURL, localServerURL]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getQrCodeApi = sessionId => serverUrl + `/api/get-auth-qr?sessionId=${sessionId}`;
 
   const socket = io(serverUrl);
@@ -58,7 +59,7 @@ function PolygonIDVerifier({
         setSocketEvents(socketEvents => [...socketEvents, arg]);
       });
     });
-  }, []);
+  }, [socket]);
 
   useEffect(() => {
     const fetchQrCode = async () => {
@@ -70,7 +71,7 @@ function PolygonIDVerifier({
     if (sessionId) {
       fetchQrCode().then(setQrCodeData).catch(console.error);
     }
-  }, [sessionId]);
+  }, [sessionId, getQrCodeApi]);
 
   // socket event side effects
   useEffect(() => {
@@ -95,9 +96,10 @@ function PolygonIDVerifier({
         }
       }
     }
-  }, [socketEvents]);
+  }, [socketEvents, reportVerificationResult, socket]);
 
   // callback, send verification result back to app
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const reportVerificationResult = result => {
     onVerificationResult(result);
   };
