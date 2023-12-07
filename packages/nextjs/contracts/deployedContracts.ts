@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
       abi: [
         {
           inputs: [
@@ -1168,6 +1168,25 @@ const deployedContracts = {
         {
           inputs: [],
           name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "ownerOf",
           outputs: [
             {
               internalType: "address",
@@ -1671,7 +1690,7 @@ const deployedContracts = {
   },
   80001: {
     RealWorldAsset: {
-      address: "0xDf8B43823ea49Bd6e8c4e92e246f1aDF5E1f4914",
+      address: "0x7526730d4d11E03bE6d1B55CeC5E0B08cE6A0A4A",
       abi: [
         {
           inputs: [
@@ -2832,6 +2851,25 @@ const deployedContracts = {
         {
           inputs: [],
           name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "ownerOf",
           outputs: [
             {
               internalType: "address",

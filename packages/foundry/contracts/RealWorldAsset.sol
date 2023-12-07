@@ -84,6 +84,7 @@ contract RealWorldAsset is
     mapping(uint256 => Warranty[]) private _warranties;
 
     // Map token ID to asset ownership share
+    mapping(uint256 => address) private _assetOwners;
     mapping(uint256 => mapping(address => uint16)) private _assetOwnershipShare; // 100% = 10000
 
     // Map token ID to current state
@@ -195,6 +196,8 @@ contract RealWorldAsset is
         uint256 newAssetOwnershipShare = (balanceOf(account, id) + amount) * 10000 / (totalSupply(id) + amount);
         _assetOwnershipShare[id][account] = uint16(newAssetOwnershipShare);
 
+        _assetOwners[id] = account;
+
         // Initial metadata creation
         _metadata[id] = Metadata(name, assetType, location, assetThumbnail, fullURI);
 
@@ -229,6 +232,8 @@ contract RealWorldAsset is
         // calculate asset ownership share based on current balance
         uint256 newAssetOwnershipShare = (balanceOf(account, id) + amount) * 10000 / (totalSupply(id) + amount);
         _assetOwnershipShare[id][account] = uint16(newAssetOwnershipShare);
+
+        _assetOwners[id] = account;
 
         // Initial metadata creation
         _metadata[id] = Metadata(name, assetType, location, assetThumbnail, fullURI);
@@ -301,6 +306,10 @@ contract RealWorldAsset is
     // @dev this should only be used to update the base URI for SVG template for tokens.
     function setURI(string memory newURI) public onlyRole(METADATOR_ROLE) {
         _setURI(newURI);
+    }
+
+    function ownerOf(uint256 id) public view returns (address) {
+        return _assetOwners[id];
     }
 
     // *********************************************************************************************
