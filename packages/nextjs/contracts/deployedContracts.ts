@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     RealWorldAsset: {
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      address: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
       abi: [
         {
           inputs: [
@@ -187,6 +187,22 @@ const deployedContracts = {
         {
           inputs: [],
           name: "OnlyRouterCanFulfill",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint8",
+              name: "bits",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+          ],
+          name: "SafeCastOverflowedUintDowncast",
           type: "error",
         },
         {
@@ -509,6 +525,31 @@ const deployedContracts = {
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "previousValuation",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "newValuation",
+              type: "uint256",
+            },
+          ],
+          name: "ValuationChanged",
+          type: "event",
+        },
+        {
           inputs: [],
           name: "CERTIFIER_ROLE",
           outputs: [
@@ -726,6 +767,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "clock",
+          outputs: [
+            {
+              internalType: "uint48",
+              name: "",
+              type: "uint48",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -856,9 +910,9 @@ const deployedContracts = {
           name: "getLatestValuation",
           outputs: [
             {
-              internalType: "uint224",
+              internalType: "uint208",
               name: "",
-              type: "uint224",
+              type: "uint208",
             },
           ],
           stateMutability: "view",
@@ -1220,6 +1274,19 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes",
+              name: "response",
+              type: "bytes",
+            },
+          ],
+          name: "processResponse",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "certifier",
               type: "address",
@@ -1514,6 +1581,25 @@ const deployedContracts = {
           name: "setURI",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "s",
+              type: "string",
+            },
+          ],
+          name: "stringToUint",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
@@ -1690,7 +1776,7 @@ const deployedContracts = {
   },
   80001: {
     RealWorldAsset: {
-      address: "0x7526730d4d11E03bE6d1B55CeC5E0B08cE6A0A4A",
+      address: "0xfa326cA8D954a73f538De0e8FDB024b18338017e",
       abi: [
         {
           inputs: [
@@ -1870,6 +1956,22 @@ const deployedContracts = {
         {
           inputs: [],
           name: "OnlyRouterCanFulfill",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint8",
+              name: "bits",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
+          ],
+          name: "SafeCastOverflowedUintDowncast",
           type: "error",
         },
         {
@@ -2192,6 +2294,31 @@ const deployedContracts = {
           type: "event",
         },
         {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "tokenId",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "previousValuation",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "newValuation",
+              type: "uint256",
+            },
+          ],
+          name: "ValuationChanged",
+          type: "event",
+        },
+        {
           inputs: [],
           name: "CERTIFIER_ROLE",
           outputs: [
@@ -2409,6 +2536,19 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "clock",
+          outputs: [
+            {
+              internalType: "uint48",
+              name: "",
+              type: "uint48",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -2539,9 +2679,9 @@ const deployedContracts = {
           name: "getLatestValuation",
           outputs: [
             {
-              internalType: "uint224",
+              internalType: "uint208",
               name: "",
-              type: "uint224",
+              type: "uint208",
             },
           ],
           stateMutability: "view",
@@ -2903,6 +3043,19 @@ const deployedContracts = {
         {
           inputs: [
             {
+              internalType: "bytes",
+              name: "response",
+              type: "bytes",
+            },
+          ],
+          name: "processResponse",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
               internalType: "address",
               name: "certifier",
               type: "address",
@@ -3197,6 +3350,25 @@ const deployedContracts = {
           name: "setURI",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "string",
+              name: "s",
+              type: "string",
+            },
+          ],
+          name: "stringToUint",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "pure",
           type: "function",
         },
         {
