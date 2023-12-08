@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {Time} from "@openzeppelin/contracts/utils/types/Time.sol";
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {Checkpoints} from "@openzeppelin/contracts/utils/structs/Checkpoints.sol";
 import {AccessControl, IAccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
@@ -28,7 +29,7 @@ contract RealWorldAsset is
     // *********************************************************************************************
 
     using Strings for uint256;
-    using Checkpoints for Checkpoints.Trace224;
+    using Checkpoints for Checkpoints.Trace208;
 
     bytes32 public constant METADATOR_ROLE = keccak256("METADATOR_ROLE");
     bytes32 public constant CERTIFIER_ROLE = keccak256("CERTIFIER_ROLE");
@@ -94,7 +95,7 @@ contract RealWorldAsset is
     mapping(AssetState => string) private _assetStateToString;
 
     // Map token ID to dynamic valuation
-    mapping(uint256 => Checkpoints.Trace224) private _valuations;
+    mapping(uint256 => Checkpoints.Trace208) private _valuations;
 
     mapping(uint256 => uint32) private _numberOfCertifiers;
     mapping(uint256 => uint32) private _numberOfWarranties;
@@ -120,6 +121,11 @@ contract RealWorldAsset is
     error UnexpectedRequestID(bytes32 requestId);
 
     event Response(bytes32 indexed requestId, bytes response, bytes err);
+
+    /**
+     * @dev Emitted when a token valation changes.
+     */
+    event ValuationChanged(uint256 indexed tokenId, uint256 previousValuation, uint256 newValuation);
 
     // TODO: add events for all functions
 
@@ -371,7 +377,7 @@ contract RealWorldAsset is
     // * -- Valulations
     // *********************************************************************************************
 
-    function getLatestValuation(uint256 id) public view returns (uint224) {
+    function getLatestValuation(uint256 id) public view returns (uint208) {
         return _valuations[id].latest();
     }
 
@@ -445,10 +451,50 @@ contract RealWorldAsset is
         s_lastResponse = response;
         s_lastError = err;
         emit Response(requestId, s_lastResponse, s_lastError);
+    }
+
+    function stringToUint(string memory s) public pure returns (uint) {
+        bytes memory b = bytes(s);
+        uint result = 0;
+        for (uint i = 0; i < b.length; i++) {
+            uint8 temp = uint8(b[i]);
+            require(temp >= 48 && temp <= 57, "Invalid string.");
+            result = result * 10 + (temp - 48); // ASCII value of '0' is 48
+        }
+        return result;
+    }
+
+    /**
+     * @dev Clock used for flagging checkpoints.
+     */
+    function clock() public view virtual returns (uint48) {
+        return Time.timestamp();
+    }
+
+    function processResponse(bytes memory response) external onlyAllowed() {
+        // Convert the bytes to a string
+        string memory responseString = string(response);
+
+        // Convert the string to a uint256
+        uint256 responseUint = stringToUint(responseString);
+
+        // Check that the uint256 fits in a uint208
+        require(responseUint <= type(uint208).max, "Response is too large to fit in a uint208");
+
+        // Convert the uint256 to a uint208
+        uint208 responseUint208 = uint208(responseUint);
 
         // note: hardcode for now/testing only
         uint256 id = 1;
-        _valuations[id].push(uint32(block.timestamp), abi.decode(response, (uint224)));
+
+        // Update the valuation
+        (uint256 oldValuation, uint256 newValuation) = _pushValuation(_valuations[id], responseUint208);
+
+        emit ValuationChanged(id, oldValuation, newValuation);
+    }
+
+    function _pushValuation(Checkpoints.Trace208 storage self, uint208 value) private returns (uint208, uint208) {
+        return self.push(clock(), value);
     }
 
     // *********************************************************************************************
