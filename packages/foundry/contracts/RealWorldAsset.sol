@@ -453,10 +453,10 @@ contract RealWorldAsset is
         emit Response(requestId, s_lastResponse, s_lastError);
     }
 
-    function stringToUint(string memory s) public pure returns (uint) {
+    function stringToUint(string memory s) public pure returns (uint256) {
         bytes memory b = bytes(s);
-        uint result = 0;
-        for (uint i = 0; i < b.length; i++) {
+        uint256 result = 0;
+        for (uint256 i = 0; i < b.length; i++) {
             uint8 temp = uint8(b[i]);
             require(temp >= 48 && temp <= 57, "Invalid string.");
             result = result * 10 + (temp - 48); // ASCII value of '0' is 48
@@ -471,7 +471,7 @@ contract RealWorldAsset is
         return Time.timestamp();
     }
 
-    function processResponse(bytes memory response) external onlyAllowed() {
+    function processResponse(bytes memory response) external onlyAllowed {
         // Convert the bytes to a string
         string memory responseString = string(response);
 
