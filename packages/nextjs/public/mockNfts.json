@@ -1,6 +1,7 @@
 [
   {
     "name": "Mock NYC Condo RWA NFT",
+    "tokenId": "1",
     "assetType": "Real Estate",
     "assetStatus": "Uncertified",
     "assetLocation": "New York",
@@ -14,6 +15,7 @@
   },
   {
     "name": "Mock Miami Mansion RWA NFT",
+    "tokenId": "2",
     "assetType": "Real Estate",
     "assetStatus": "Uncertified",
     "assetLocation": "Florida",
@@ -27,6 +29,7 @@
   },
   {
     "name": "Mock Gold Bar RWA NFT",
+    "tokenId": "3",
     "assetType": "Precious Metals",
     "assetStatus": "Uncertified",
     "assetLocation": "California",

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 // import { useRouter } from "next/router";
 import mockNfts from "../public/mockNfts.json";
 import { NextPage } from "next";
 
 interface NFT {
+  tokenId: string;
   name: string;
   assetType: string;
   assetStatus: string;
@@ -44,7 +46,9 @@ const SellerDashboard: NextPage = () => {
                 <li className="text-sm ">{nft.listPrice}</li>
               </ul>
               <div className="card-actions justify-end">
-                <button className="btn btn-primary">Manage</button>
+                <Link href={`/assets/${nft.tokenId}`}>
+                  <button className="btn btn-primary">Manage</button>
+                </Link>
               </div>
             </div>
           </div>
