@@ -97,8 +97,10 @@ const AssetPage: NextPage = () => {
         <p>{nft?.location}</p>
         <h3 className="mt-4 text-xl">Asset Status</h3>
         <p>{nft?.status}</p>
-        <h3 className="mt-4 text-xl">Price</h3>
-        <p>{nft?.price}</p>
+        <h3 className="mt-4 text-xl">Current Valuation</h3>
+        <p>23,000,000</p>
+        <h3 className="mt-4 text-xl">List Price</h3>
+        <p>48,000,000</p>
         <button className="mt-4 px-6 py-2 btn btn-primary btn-wide">Buy Now</button>
 
         <h2 className="mt-8 text-2xl font-bold italic">Certifiers only</h2>
