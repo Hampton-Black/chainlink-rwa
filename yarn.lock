@@ -4062,7 +4062,7 @@ __metadata:
     eslint-config-prettier: ^8.5.0
     eslint-plugin-prettier: ^4.2.1
     prettier: ^2.7.1
-  checksum: 324dca48155a3a372edb5d8ec1911d00587bb8e7cde381dfa9a72a95aa93d78361f03710909b06daaeb94778f5f27189fc2c7041c8d41d68bc62d4a3e131166a
+  checksum: 629d9fdbc218a0dccade8c81b4657282ea9d51624a56d97d5a3ff66a08c26d271338ec1d2bee96d77c23f101013275ed82ad33ccc131eb20d47441444247e5b2
   languageName: node
   linkType: hard
 
