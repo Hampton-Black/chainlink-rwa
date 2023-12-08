@@ -59,7 +59,7 @@ function PolygonIDVerifier({
         setSocketEvents(socketEvents => [...socketEvents, arg]);
       });
     });
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
     const fetchQrCode = async () => {
@@ -71,7 +71,7 @@ function PolygonIDVerifier({
     if (sessionId) {
       fetchQrCode().then(setQrCodeData).catch(console.error);
     }
-  }, [sessionId, getQrCodeApi]);
+  }, [sessionId]);
 
   // socket event side effects
   useEffect(() => {
@@ -96,7 +96,7 @@ function PolygonIDVerifier({
         }
       }
     }
-  }, [socketEvents, reportVerificationResult, socket]);
+  }, [socketEvents]);
 
   // callback, send verification result back to app
   // eslint-disable-next-line react-hooks/exhaustive-deps
