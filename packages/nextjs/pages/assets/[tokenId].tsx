@@ -2,12 +2,18 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { readContract } from "@wagmi/core";
 import { NextPage } from "next";
+import { Address } from "~~/components/scaffold-eth";
 import deployedContracts from "~~/contracts/deployedContracts";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 interface NFT {
   uri: string;
   owner: string;
+  title: string;
+  description: string;
+  location: string;
+  status: string;
+  price: string;
 }
 
 const AssetPage: NextPage = () => {
@@ -43,14 +49,32 @@ const AssetPage: NextPage = () => {
         args: [BigInt(tokenId)],
       });
 
-      const nft = { uri, owner };
-      setNft(nft);
+      const status = await readContract({
+        address: contract?.address ?? "",
+        abi: deployedABI,
+        functionName: "getAssetState",
+        args: [BigInt(tokenId)],
+      });
 
-      const metadata = await fetch(nft.uri);
+      const metadata = await fetch(uri);
       const metadataJSON = await metadata.json();
-      const ipfsUrl = metadataJSON.image.replace("ipfs://", "https://ipfs.io/ipfs/");
+      const ipfsUrl = metadataJSON.image.replace(
+        "ipfs://",
+        "https://turquoise-elderly-panther-553.mypinata.cloud/ipfs/",
+      );
+
+      const nft = {
+        uri,
+        owner,
+        title: metadataJSON.name,
+        description: metadataJSON.description,
+        location: metadataJSON.location,
+        status,
+        price: metadataJSON.price,
+      };
 
       setImage(ipfsUrl);
+      setNft(nft);
     };
 
     if (tokenId && contract) {
@@ -65,16 +89,16 @@ const AssetPage: NextPage = () => {
         {image && <img src={image} alt="NFT" width={600} height={600} className="rounded-lg" />}
       </div>
       <div className="mt-6 md:mt-0 p-8">
-        <h2 className="text-2xl font-bold">NFT Title</h2>
-        <p className="mt-2 text-gray-600">NFT Description</p>
+        <h2 className="text-2xl font-bold">{nft?.title}</h2>
+        <p className="mt-2 text-gray-600">{nft?.description}</p>
         <h3 className="mt-4 text-xl">Owner</h3>
-        <p>{nft?.owner}</p>
+        <Address address={nft?.owner} />
         <h3 className="mt-4 text-xl">Asset Location</h3>
-        <p>Asset Location</p>
+        <p>{nft?.location}</p>
         <h3 className="mt-4 text-xl">Asset Status</h3>
-        <p>Asset Status</p>
+        <p>{nft?.status}</p>
         <h3 className="mt-4 text-xl">Price</h3>
-        <p>Price</p>
+        <p>{nft?.price}</p>
         <button className="mt-4 px-6 py-2 btn btn-primary btn-wide">Buy Now</button>
 
         <h2 className="mt-8 text-2xl font-bold italic">Certifiers only</h2>
