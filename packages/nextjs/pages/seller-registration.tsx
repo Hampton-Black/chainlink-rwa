@@ -476,6 +476,7 @@ const SellerRegistration: NextPage = () => {
                   DID={formData.DID || ""}
                   walletAddress={accountState.address || ""}
                   handleLegalContractData={handleLegalContractData}
+                  nextPage={nextPage}
                 />
 
                 <FormButtons previousPage={previousPage} />
