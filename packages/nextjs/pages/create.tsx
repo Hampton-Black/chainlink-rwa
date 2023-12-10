@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import axios from "axios";
 import { ethers } from "ethers";
 import { NextPage } from "next";
@@ -6,7 +7,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { useAccount } from "wagmi";
 import { ApiDataDisplay } from "~~/components/ApiDataDisplay";
 import BaseThumbnail from "~~/components/BaseThumbnail";
-import { FormButtons } from "~~/components/FormButtons";
 import LegalContract from "~~/components/LegalContract";
 import { ManualFormInputs } from "~~/components/ManualFormInputs";
 import { EtherInput } from "~~/components/scaffold-eth";
@@ -64,6 +64,8 @@ const MattereumPassport: NextPage = () => {
   ];
 
   const accountState = useAccount();
+
+  const router = useRouter();
 
   // write to mint function
   const { writeAsync: writeAsyncMint } = useScaffoldContractWrite({
@@ -177,6 +179,8 @@ const MattereumPassport: NextPage = () => {
   const handleIpfsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    nextPage();
+
     // format data for submission to Pinata
     const fullMetadata = {
       name: formData.title,
@@ -256,6 +260,9 @@ const MattereumPassport: NextPage = () => {
     await writeAsyncMint({
       args: [accountState.address, BigInt(1), `0x${abiEncodedDataWithoutPrefix}`],
     });
+
+    // redirect to the dashboard
+    router.push("/");
   };
 
   // Fetch data from the API when useApi changes
@@ -463,16 +470,15 @@ const MattereumPassport: NextPage = () => {
               {currentModalPage === 1 && (
                 <div className="form-control w-full p-4 flex flex-col justify-center items-center">
                   <h2 className="text-2xl text-center p-4">Legal Contract</h2>
-                  <form onSubmit={nextPage} className="flex flex-col justify-around h-full">
+                  <form className="flex flex-col justify-around h-full">
                     <p className="text-center">Please review the legal contract below and click the button to sign.</p>
 
                     <LegalContract
                       DID={formData.DID || ""}
                       walletAddress={accountState.address || ""}
                       handleLegalContractData={handleLegalContractData}
+                      nextPage={nextPage}
                     />
-
-                    <FormButtons previousPage={previousPage} />
                   </form>
                 </div>
               )}
@@ -480,8 +486,8 @@ const MattereumPassport: NextPage = () => {
               {currentModalPage === 2 && (
                 <div className="form-control w-full max-w-lg p-4 flex flex-col justify-center items-center">
                   <h2 className="text-2xl text-center p-4 ml-10">Review and Submit</h2>
-                  <form className="flex flex-col justify-around" onSubmit={nextPage}>
-                    <div className="container overflow-auto h-max json-view rounded-lg p-4">
+                  <form className="flex flex-grow flex-col h-full">
+                    <div className="self-end mr-48 json-view rounded-lg p-4 overflow-x-auto max-w-full whitespace-pre-wrap word-wrap">
                       <pre>
                         <code>
                           {JSON.stringify(
@@ -497,8 +503,6 @@ const MattereumPassport: NextPage = () => {
                         Submit to IPFS
                       </button>
                     </div>
-
-                    <FormButtons previousPage={previousPage} />
                   </form>
                 </div>
               )}
