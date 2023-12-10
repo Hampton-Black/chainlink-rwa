@@ -6,12 +6,14 @@ interface LegalContractProps {
   DID: string;
   walletAddress: string;
   handleLegalContractData: (signature: string, contractURI: string) => void;
+  nextPage: () => void;
 }
 
 const LegalContract: React.FC<LegalContractProps> = ({
   DID,
   walletAddress,
   handleLegalContractData,
+  nextPage,
 }: LegalContractProps) => {
   const contractTerms = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam auctor aliquam lacus, at viverra ante dictum
     quis. Sed purus sem, scelerisque ac rhoncus eget, porttitor nec odio. Lorem ipsum dolor sit amet, consectetur
@@ -64,7 +66,7 @@ const LegalContract: React.FC<LegalContractProps> = ({
         types,
       });
 
-      console.log(signature);
+      nextPage();
 
       const data = JSON.stringify({
         pinataContent: {
