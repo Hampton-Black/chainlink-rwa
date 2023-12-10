@@ -86,10 +86,6 @@ const MattereumPassport: NextPage = () => {
     setCurrentModalPage(currentModalPage + 1);
   };
 
-  const previousPage = () => {
-    setCurrentModalPage(currentModalPage - 1);
-  };
-
   const handleLegalContractData = (signature: string, contractURI: string) => {
     setLegalContractData({ signature, contractURI });
   };
