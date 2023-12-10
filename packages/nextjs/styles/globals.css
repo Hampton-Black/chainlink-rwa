@@ -36,6 +36,8 @@ p {
   color: white;
   border-radius: 5px;
   padding: 10px;
+  overflow: auto;
+  max-width: 50%;
   font-family: monospace;
   white-space: pre-wrap;
   word-wrap: break-word;
